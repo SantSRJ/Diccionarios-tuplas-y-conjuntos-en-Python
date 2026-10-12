@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diccionarios, tuplas y conjuntos en Python | Guía pedagógica</title>
+<style>
+:root{
+  --bg1:#f8fafc;--bg2:#e2e8f0;--card:#ffffff;--ink:#1e293b;--muted:#64748b;--line:#e2e8f0;
+  --blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--purple:#8b5cf6;--red:#ef4444;
+  --t-blue:#eff6ff;--t-green:#ecfdf5;--t-orange:#fffbeb;--t-purple:#f5f3ff;--t-red:#fef2f2;
+  --code:#1e293b;--code-ink:#e2e8f0;--shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05);
+  --docente:#f0f9ff;--docente-b:#0ea5e9;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg1:#0f172a;--bg2:#111c33;--card:#172036;--ink:#e2e8f0;--muted:#94a3b8;--line:#26324a;
+  --t-blue:#172a4a;--t-green:#0f2f2a;--t-orange:#33280f;--t-purple:#261f45;--t-red:#3a1a1f;
+  --code:#0b1222;--code-ink:#e2e8f0;--shadow:0 1px 3px rgba(0,0,0,.4);--docente:#0c2534;
+}}
+:root[data-theme="dark"]{
+  --bg1:#0f172a;--bg2:#111c33;--card:#172036;--ink:#e2e8f0;--muted:#94a3b8;--line:#26324a;
+  --t-blue:#172a4a;--t-green:#0f2f2a;--t-orange:#33280f;--t-purple:#261f45;--t-red:#3a1a1f;
+  --code:#0b1222;--code-ink:#e2e8f0;--shadow:0 1px 3px rgba(0,0,0,.4);--docente:#0c2534;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 16px);scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;color:var(--ink);
+  background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed;background-color:var(--bg1);line-height:1.55;font-size:16px}
+code,pre,textarea{font-family:"Cascadia Code","JetBrains Mono",Consolas,"Fira Code",ui-monospace,monospace}
+p code,li code,td code,h3 code,.tile code,.alerta code,button code,small code{background:rgba(59,130,246,.12);color:inherit;padding:.05em .35em;border-radius:5px;font-size:.88em}
+a{color:var(--blue)}
+.c-blue{color:var(--blue)}.c-green{color:var(--green)}.c-orange{color:var(--orange)}.c-purple{color:var(--purple)}.c-red{color:var(--red)}
+.muted{color:var(--muted);font-size:.92rem}
+
+/* layout */
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;max-width:1440px;margin:0 auto;padding:24px 24px 0}
+aside.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}
+main{min-width:0}
+@media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr);padding:14px 14px 0}aside.side{position:static;max-height:none}}
+
+/* side */
+.side-box{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px;border:1px solid var(--line)}
+.side-box h4{margin:0 0 10px;font-size:.95rem;display:flex;gap:8px;align-items:center}
+.reloj{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.reloj small{font-size:.9rem;color:var(--muted);font-weight:500}
+.barra{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:8px 0 12px}
+.barra>span{display:block;height:100%;width:0;background:var(--blue);transition:width .4s}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.agenda{list-style:none;margin:0;padding:0}
+.agenda a{display:flex;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:9px;text-decoration:none;color:var(--ink);font-size:.92rem;border-left:3px solid transparent}
+.agenda a:hover{background:var(--t-blue)}
+.agenda a span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.85rem;white-space:nowrap}
+.agenda a.activo{background:var(--t-blue);border-left-color:var(--blue);font-weight:600}
+.agenda a.hecho{color:var(--muted)}
+.modo{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.92rem}
+.switch{position:relative;width:44px;height:24px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch span{position:absolute;inset:0;background:var(--line);border-radius:20px;cursor:pointer;transition:.2s}
+.switch span::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.switch input:checked+span{background:var(--blue)}
+.switch input:checked+span::before{transform:translateX(20px)}
+.switch input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.py-estado{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:10px}
+.py-estado .dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.py-estado.listo .dot{background:var(--green)}
+
+/* buttons */
+button{font:inherit;cursor:pointer}
+.btn,.btn-run,.btn-sec{border:0;border-radius:8px;padding:6px 12px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.btn{background:var(--t-blue);color:var(--blue)}
+.btn-run{background:var(--green);color:#fff}
+.btn-run:disabled{opacity:.6;cursor:wait}
+.btn-sec{background:transparent;color:var(--muted);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* hero */
+.hero{text-align:center;padding:34px 10px 26px;position:relative}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);margin:0;line-height:1.1;display:inline-flex;gap:16px;align-items:center;letter-spacing:-.01em}
+.hero h1 i{color:var(--blue)}
+.hero p{color:var(--muted);font-size:1.25rem;margin:10px 0 0}
+.hero .pill{margin-top:14px}
+
+/* sections */
+.seccion{margin:0 0 46px}
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.sec-tit{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec-tit>i{color:var(--blue);font-size:1.5rem;align-self:center}
+.sec-tit h2{margin:0;font-size:1.6rem;line-height:1.2}
+.sec-sub{color:var(--muted);font-size:.98rem}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--t-blue);color:var(--blue);border-radius:20px;padding:4px 12px;font-size:.85rem;font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.subtema{display:flex;align-items:center;gap:10px;margin:26px 0 12px;font-size:1.15rem}
+.subnum{background:var(--blue);color:#fff;border-radius:8px;padding:1px 9px;font-size:.9rem}
+.submin{margin-left:auto;color:var(--muted);font-size:.85rem;font-weight:500}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.col>*+*{margin-top:14px}
+@media (max-width:1180px){.row2{grid-template-columns:minmax(0,1fr)}}
+
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:18px 20px;border:1px solid var(--line)}
+.card-tit{margin:0 0 10px;font-size:1.05rem;display:flex;gap:9px;align-items:center}
+.card p{margin:.4em 0 .7em}
+.tiles{display:grid;gap:10px;margin:10px 0}
+.tiles.t2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tiles.t3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:600px){.tiles.t2,.tiles.t3{grid-template-columns:1fr}}
+.tile{border-radius:9px;padding:10px 12px;border-left:4px solid}
+.tile p{margin:2px 0 0;font-size:.9rem;color:var(--muted)}
+.tile-tit{font-weight:700;font-size:.95rem;display:flex;gap:7px;align-items:center}
+.t-blue{background:var(--t-blue);border-color:var(--blue)}.t-blue .tile-tit i{color:var(--blue)}
+.t-green{background:var(--t-green);border-color:var(--green)}.t-green .tile-tit i{color:var(--green)}
+.t-orange{background:var(--t-orange);border-color:var(--orange)}.t-orange .tile-tit i{color:var(--orange)}
+.t-purple{background:var(--t-purple);border-color:var(--purple)}.t-purple .tile-tit i{color:var(--purple)}
+.t-red{background:var(--t-red);border-color:var(--red)}.t-red .tile-tit i{color:var(--red)}
+
+/* code window */
+.win{background:var(--code);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.win-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;color:#94a3b8;font-size:.82rem;border-bottom:1px solid rgba(148,163,184,.12)}
+.win-bar .d{width:11px;height:11px;border-radius:50%}
+.win-bar .d:nth-child(1){background:#ef4444}.win-bar .d:nth-child(2){background:#f59e0b}.win-bar .d:nth-child(3){background:#10b981}
+.win-bar .titulo{margin-left:8px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win-bar button{background:rgba(148,163,184,.14);color:#cbd5e1;border:0;border-radius:6px;padding:3px 9px;font-size:.78rem;font-weight:600}
+.win-bar button.run{background:#10b981;color:#fff}
+.win pre.py,.win textarea{margin:0;padding:14px 16px;color:var(--code-ink);font-size:.86rem;line-height:1.6;overflow-x:auto;white-space:pre;tab-size:4}
+.win textarea,.editor{width:100%;min-height:160px;border:0;resize:vertical;background:#0f172a;color:#e2e8f0;display:block;font-size:.86rem;line-height:1.6;padding:14px 16px;white-space:pre;overflow:auto}
+.consola{margin:0;padding:12px 16px;background:#020617;color:#cbd5e1;font-size:.84rem;white-space:pre-wrap;border-top:1px solid #1e293b;max-height:340px;overflow:auto}
+.consola .err{color:#fca5a5}
+.consola .ayuda{display:block;margin-top:8px;padding:8px 10px;border-radius:7px;background:rgba(245,158,11,.14);color:#fde68a;font-family:"Segoe UI",system-ui,sans-serif;white-space:normal}
+.consola .meta{color:#64748b}
+.tok-c{color:#64748b;font-style:italic}.tok-s{color:#34d399}.tok-n{color:#60a5fa}.tok-k{color:#c084fc}.tok-b{color:#38bdf8}.tok-m{color:#93c5fd}.tok-v{color:#fbbf24}
+
+/* alert + teacher */
+.alerta{border-radius:12px;border:1px solid rgba(239,68,68,.35);border-left:5px solid var(--red);background:var(--t-red);padding:12px 16px}
+.alerta-tit{font-weight:700;color:var(--red);display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.alerta p{margin:.35em 0}.alerta ul{margin:.3em 0;padding-left:1.2em}
+.alerta .win{margin-top:10px}
+.docente{border-radius:12px;border:1px dashed var(--docente-b);background:var(--docente);padding:12px 16px}
+.docente-tit{font-weight:700;color:var(--docente-b);display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.docente p{margin:.35em 0}
+body.alumno .docente{display:none}
+
+/* tables */
+.tabla-wrap{overflow-x:auto}
+.tabla{width:100%;border-collapse:collapse;font-size:.9rem}
+.tabla th{text-align:left;color:var(--muted);font-weight:600;border-bottom:2px solid var(--line);padding:7px 8px}
+.tabla td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top}
+.tabla .none{color:var(--red);font-weight:600}.tabla .val{color:var(--green);font-weight:600}
+span.none{color:var(--red);font-weight:600}
+.traza{font-variant-numeric:tabular-nums;margin:10px 0}
+.traza td,.traza th{text-align:center}
+
+/* comparar */
+.comparar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.comparar>div{border-radius:9px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.comparar span{font-weight:700;font-size:.88rem}
+.comparar code{background:transparent!important;padding:0!important;font-size:.88rem}
+.comparar small{color:var(--muted)}
+.mal{background:var(--t-red)}.mal span{color:var(--red)}
+.bien{background:var(--t-green)}.bien span{color:var(--green)}
+.lista-ok{padding-left:1.2em;margin:.5em 0}.lista-ok li{margin:.25em 0}
+
+/* index guide */
+.idx-guia{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0 12px}
+.idx{display:flex;flex-direction:column;align-items:center;gap:2px}
+.idx .v{border-radius:8px;padding:8px 14px;font-weight:700;border-left:0;color:#fff}
+.idx .t-blue{background:var(--blue)}.idx .t-green{background:var(--green)}.idx .t-orange{background:var(--orange)}.idx .t-purple{background:var(--purple)}
+.idx small{color:var(--muted);font-size:.8rem;font-variant-numeric:tabular-nums}
+.idx small.neg{color:var(--red)}
+
+/* chips */
+.chip-btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:4px 11px;font-size:.84rem}
+.chip-btn.on{background:var(--t-blue);border-color:var(--blue);color:var(--blue);font-weight:600}
+.chip-btn.accion{border-color:var(--green);color:var(--green)}
+.chip-btn code{background:transparent!important;padding:0!important}
+
+/* alias sim */
+.alias{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+.alias-ctrl{display:flex;gap:6px;flex-wrap:wrap}
+.alias-mem{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0 6px;min-height:90px;align-items:flex-end}
+.obj{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.etqs{display:flex;gap:6px}
+.etq{background:var(--orange);color:#fff;font-weight:700;border-radius:6px;padding:1px 10px;font-family:"Cascadia Code",Consolas,monospace;position:relative}
+.etq::after{content:"↓";position:absolute;left:50%;transform:translateX(-50%);bottom:-19px;color:var(--muted);font-weight:400}
+.caja{display:flex;border:2px solid var(--blue);border-radius:9px;overflow:hidden;margin-top:12px}
+.caja span{padding:6px 12px;border-right:1px solid var(--line);font-family:"Cascadia Code",Consolas,monospace;background:var(--card)}
+.caja span:last-child{border-right:0}
+.caja span.nuevo{background:var(--t-green);color:var(--green);font-weight:700}
+.obj small{color:var(--muted);font-size:.78rem;font-family:"Cascadia Code",Consolas,monospace}
+.alias-msg{font-size:.92rem;margin:4px 0 0;min-height:2.6em}
+
+/* slicer */
+.slicer{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:6px}
+.slicer-in{display:flex;align-items:center;gap:3px;font-size:1.05rem;flex-wrap:wrap}
+.slicer-in code{background:transparent!important;font-weight:700}
+.slicer-in input{width:64px;padding:5px 6px;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);font:inherit;font-size:.95rem;text-align:center}
+.slicer-pres{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+.slicer-celdas{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:12px 0 6px}
+.celda{width:54px;border:2px solid var(--line);border-radius:9px;text-align:center;padding:4px 0;position:relative;transition:.2s}
+.celda b{display:block;font-size:1rem}
+.celda small{display:block;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.celda.sel{border-color:var(--green);background:var(--t-green)}
+.celda .ord{position:absolute;top:-10px;right:-8px;background:var(--green);color:#fff;font-size:.7rem;border-radius:9px;padding:0 6px;font-weight:700}
+.slicer-res{text-align:center;font-family:"Cascadia Code",Consolas,monospace;font-size:.95rem}
+.slicer-res .err{color:var(--red)}
+
+/* ejercicios */
+.nivel-tit{display:flex;gap:10px;align-items:center;font-size:1.15rem;margin:30px 0 12px}
+.niveles{display:flex;gap:7px;flex-wrap:wrap}
+.ej-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.ej-grid.dios{grid-template-columns:1fr}
+.ej{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--line);border-top:4px solid;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.n-basico{border-top-color:var(--green)}.n-intermedio{border-top-color:var(--orange)}.n-avanzado{border-top-color:var(--red)}.n-dios{border-top-color:var(--purple)}
+.ej-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ej-head h4{margin:0;font-size:1.02rem;flex:1;min-width:180px}
+.ej-id{font-weight:800;color:var(--muted);font-size:.85rem}
+.ej-enun p{margin:0}
+.badge{border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:700;display:inline-flex;gap:5px;align-items:center}
+.b-basico{background:var(--t-green);color:var(--green)}.b-intermedio{background:var(--t-orange);color:#d97706}.b-avanzado{background:var(--t-red);color:var(--red)}.b-dios{background:var(--t-purple);color:var(--purple)}
+.salida-esp{background:var(--t-blue);border-radius:9px;padding:8px 12px}
+.salida-esp span{font-size:.8rem;font-weight:700;color:var(--blue)}
+.salida-esp pre{margin:4px 0 0;font-size:.82rem;white-space:pre-wrap}
+.practica{border-radius:10px;overflow:hidden;background:var(--code)}
+.practica-bar{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;color:#94a3b8;font-size:.82rem;gap:8px;flex-wrap:wrap}
+.practica-btns{display:flex;gap:6px}
+.practica .btn-sec{color:#cbd5e1;border-color:#334155;padding:3px 9px;font-size:.8rem}
+.practica .btn-run{padding:3px 10px;font-size:.8rem}
+details{border:1px solid var(--line);border-radius:10px;padding:0 12px}
+details summary{cursor:pointer;padding:9px 0;font-weight:600;font-size:.92rem;display:flex;gap:7px;align-items:center;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";margin-left:auto;color:var(--muted);font-size:1.1rem}
+details[open] summary::after{content:"−"}
+details>div{padding:0 0 12px}
+details.pista summary{color:#d97706}
+details.solucion summary{color:var(--green)}
+details h5{margin:12px 0 4px;font-size:.95rem}
+.pasos{padding-left:1.3em;margin:.4em 0 .8em}.pasos li{margin:.3em 0}
+details .win{margin-top:8px}
+
+/* pausa */
+.pausa-in{display:flex;gap:18px;align-items:center;background:var(--card);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.pausa-in i{font-size:2rem;color:var(--orange)}
+.pausa-in h2{margin:0;font-size:1.3rem}.pausa-in p{margin:2px 0 0;color:var(--muted)}
+
+/* quiz */
+.q{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border-bottom:0}
+.q-num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--t-blue);color:var(--blue);font-weight:700;display:grid;place-items:center;font-size:.85rem}
+.q-body{flex:1;min-width:0}
+pre.q-code{background:var(--code);color:var(--code-ink);border-radius:9px;padding:10px 12px;margin:0 0 8px;font-size:.84rem;overflow-x:auto}
+.q-ops{display:flex;flex-wrap:wrap;gap:6px}
+.q-op{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 12px;font-family:"Cascadia Code",Consolas,monospace;font-size:.85rem}
+.q-op.ok{background:var(--t-green);border-color:var(--green);color:var(--green);font-weight:700}
+.q-op.no{background:var(--t-red);border-color:var(--red);color:var(--red)}
+.q-fb{margin:6px 0 0;font-size:.88rem;min-height:1em}
+.q-score{font-weight:700;color:var(--blue);margin:10px 0 0}
+
+/* explorador de matriz */
+.mexp{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:6px}
+.mexp-grid{display:grid;grid-template-columns:auto repeat(4,minmax(0,56px));gap:6px;justify-content:center;margin:14px 0 8px;align-items:center}
+.mexp-grid .hdr{font-size:.75rem;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.mexp-grid button{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 0;font-weight:700;font-family:"Cascadia Code",Consolas,monospace}
+.mexp-grid button.sel{border-color:var(--green);background:var(--t-green);color:var(--green)}
+.mexp-grid button.hl{border-color:var(--blue);background:var(--t-blue)}
+.mexp-res{text-align:center;font-family:"Cascadia Code",Consolas,monospace;font-size:.92rem;min-height:2.6em}
+.malias-mem{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0 6px;align-items:center}
+.mrows{display:flex;flex-direction:column;gap:6px}
+.mrow{display:flex;align-items:center;gap:8px}
+.mrow .etq{font-size:.8rem}
+.mrow .etq::after{content:none}
+.mrow .caja{margin-top:0}
+.mrow small{color:var(--muted);font-family:"Cascadia Code",Consolas,monospace;font-size:.76rem}
+.caja span.cambio{background:var(--t-red);color:var(--red);font-weight:700}
+/* consola flotante (modelo Clase 9) */
+.lanzador{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;border:0;border-radius:30px;padding:11px 18px;background:var(--blue);color:#fff;font-weight:700;font-size:.92rem;display:inline-flex;gap:8px;align-items:center;box-shadow:0 6px 20px rgba(15,27,45,.25)}
+.lanzador:hover{filter:brightness(1.08)}
+.cajon{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;width:min(580px,calc(100vw - 36px));max-height:calc(100vh - 36px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px rgba(15,27,45,.35);padding:16px 18px;display:none}
+.cajon.abierto{display:block}
+.cajon .cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cajon .cab strong{font-size:1.1rem;display:flex;gap:8px;align-items:center}
+@media (max-width:600px){.cajon{right:8px;left:8px;width:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px))}}
+.btn-mini{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:7px;padding:4px 10px;font-size:.82rem}
+.btn-mini:hover{border-color:var(--blue);color:var(--blue)}
+.btn-c{border:0;border-radius:7px;padding:8px 16px;font-weight:600;font-size:.9rem;background:var(--blue);color:#fff}
+.btn-c:disabled{opacity:.55;cursor:wait}
+.btn-c.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.ed{display:grid;grid-template-columns:auto minmax(0,1fr);background:var(--code);border:1px solid #334155;border-radius:10px;overflow:hidden;font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace;font-size:.85rem;line-height:1.6}
+.ed:focus-within{border-color:var(--blue)}
+.ed .gutter{padding:12px 8px 12px 12px;text-align:right;color:#64748b;user-select:none;border-right:1px solid #334155;min-width:40px;background:#172033}
+.ed .gutter span{display:block}
+.ed .gutter span.err{color:#fff;background:var(--red);border-radius:3px;padding:0 4px;margin-right:-4px}
+.ed .area{position:relative;overflow:hidden}
+.ed .capa,.ed textarea{margin:0;border:0;padding:12px 14px;font:inherit;line-height:inherit;white-space:pre;tab-size:4;letter-spacing:0;word-spacing:0}
+.ed .capa{position:absolute;inset:0;overflow:hidden;pointer-events:none;color:#e2e8f0;background:transparent}
+.ed .capa code{background:none;padding:0;font-size:inherit;display:block;color:inherit}
+.ed textarea{position:relative;display:block;width:100%;min-height:9em;resize:none;background:transparent;color:transparent;caret-color:#e2e8f0;outline:none;overflow-x:auto;overflow-y:hidden}
+.ed textarea::selection{background:rgba(59,130,246,.35);color:transparent}
+.entradas{display:grid;gap:4px;margin-top:10px}
+.entradas label{font-size:.82rem;color:var(--muted)}
+.entradas textarea{font-family:"Cascadia Code",Consolas,monospace;font-size:.84rem;border:1px solid var(--line);border-radius:7px;padding:6px 10px;background:var(--card);color:var(--ink);resize:vertical;min-height:2.4em;line-height:1.5}
+.barra-acc{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.barra-acc .atajo{font-size:.78rem;color:var(--muted);margin-left:auto}
+.consola-salida{margin-top:10px}
+.terminal{background:#0f172a;color:#e2e8f0;border-radius:10px;font-family:"Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.6;padding:12px 14px;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.terminal .tenue{color:#7f93ae}
+.terminal .rojo{color:#ff8f84}
+.explica{background:var(--t-red);border-radius:0 0 10px 10px;padding:14px 14px 10px;font-size:.9rem;margin-top:-6px}
+.explica strong{color:var(--red)}
+.btn-probar{margin-top:8px}
+/* simulador hash y venn */
+.hashsim,.venn{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:6px}
+.hs-in{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hs-in input{flex:1;min-width:120px;padding:5px 9px;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);font:inherit;font-family:"Cascadia Code",Consolas,monospace;font-size:.9rem}
+.hs-tabla{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0 6px}
+.hs-cas{border:2px solid var(--line);border-radius:9px;padding:6px 8px;min-height:62px;font-size:.8rem;transition:.2s}
+.hs-cas small{display:block;color:var(--muted);font-variant-numeric:tabular-nums}
+.hs-cas span{display:block;font-family:"Cascadia Code",Consolas,monospace;font-size:.78rem;overflow-wrap:anywhere}
+.hs-cas.hit{border-color:var(--green);background:var(--t-green)}
+.hs-cas.miss{border-color:var(--orange);background:var(--t-orange)}
+@media (max-width:600px){.hs-tabla{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.hs-msg{font-size:.9rem;margin:4px 0 0;min-height:2.6em}
+.venn svg{width:100%;max-width:440px;display:block;margin:10px auto 0}
+.venn .rA,.venn .rB,.venn .rI{fill:var(--card);transition:fill .25s}
+.venn .on{fill:#bfdbfe}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .venn .on{fill:#1e3a8a}}
+:root[data-theme="dark"] .venn .on{fill:#1e3a8a}
+.venn .tapa{fill:var(--card)}
+.venn .borde{fill:none;stroke:var(--ink);stroke-width:2;opacity:.55}
+.venn .vt{fill:var(--muted);font-size:14px;font-weight:700}
+.venn .ve{fill:var(--ink);font-size:15px;font-family:"Cascadia Code",Consolas,monospace}
+.venn-res{text-align:center;font-family:"Cascadia Code",Consolas,monospace;font-size:.9rem;min-height:2.6em;margin-top:4px}
+/* footer */
+.pie{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:.88rem;border-top:1px solid var(--line);padding:16px 0 26px;margin-top:10px}
+.pie .firma{font-weight:600;color:var(--ink)}
+@media print{aside.side,.practica,.win-bar button{display:none}.layout{grid-template-columns:1fr}details{border:0}details>div{display:block}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/brython@3.13.2/brython.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/brython@3.13.2/brython_stdlib.js"></script>
+</head>
+<body>
+<div class="layout">
+<aside class="side" aria-label="Agenda y herramientas de la clase">
+  <div class="side-box">
+    <h4><i class="fa-regular fa-clock c-blue"></i> Reloj de la clase</h4>
+    <div class="reloj" id="reloj" aria-live="off">00:00</div>
+    <div class="barra"><span id="barra"></span></div>
+    <div class="btns"><button class="btn" id="t-play" type="button"><i class="fa-solid fa-play"></i> Iniciar</button><button class="btn-sec" id="t-reset" type="button">Reiniciar</button></div>
+  </div>
+  <div class="side-box">
+    <h4><i class="fa-solid fa-list-ol c-blue"></i> Agenda (150 min)</h4>
+    <ul class="agenda" id="agenda"></ul>
+  </div>
+  <div class="side-box">
+    <label class="modo"><span id="modo-lbl">Vista docente</span><span class="switch"><input type="checkbox" id="modo-docente" checked><span></span></span></label>
+    <p class="muted" style="margin:.5em 0 0">Apagalo para proyectar sin las notas para el docente.</p>
+    <div class="py-estado" id="py-estado"><span class="dot"></span><span>Cargando Python…</span></div>
+  </div>
+</aside>
+<main>
+<header class="hero">
+  <h1><i class="fa-solid fa-key"></i> Diccionarios, tuplas y conjuntos</h1>
+  <p>Estructuras para buscar, contar y comparar datos: clase teórico-práctica</p>
+  <div class="pills" style="justify-content:center;margin-top:14px"><span class="pill"><i class="fa-solid fa-graduation-cap"></i> Programación en Python</span><span class="pill"><i class="fa-solid fa-layer-group"></i> 5 módulos</span><span class="pill"><i class="fa-regular fa-clock"></i> 2 h 30 min</span></div>
+</header>
+<section id="apertura" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-door-open"></i><h2>Apertura</h2><span class="sec-sub">| Encuadre y objetivos de la clase</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 5 min</span><span class="pill"><i class="fa-solid fa-flag"></i> Encuadre</span></div>
+</header>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-bullseye c-blue"></i> Objetivos de aprendizaje</h3><p>Al finalizar la clase, cada estudiante va a poder:</p>
+<div class="tiles t2">
+<div class="tile t-blue"><div class="tile-tit"><i class="fa-solid fa-lock"></i> Tuplas</div><p>Usar tuplas <b>inmutables</b>, desempaquetarlas y ordenar datos con el patrón <b>DSU</b>.</p></div>
+<div class="tile t-green"><div class="tile-tit"><i class="fa-solid fa-key"></i> Diccionarios</div><p>Modelar pares <b>clave-valor</b>, recorrerlos y construir <b>contadores</b>.</p></div>
+<div class="tile t-orange"><div class="tile-tit"><i class="fa-solid fa-circle-nodes"></i> Conjuntos</div><p>Eliminar duplicados y operar con <b>unión</b>, <b>intersección</b> y <b>diferencia</b>.</p></div>
+<div class="tile t-purple"><div class="tile-tit"><i class="fa-solid fa-bug"></i> Depurar</div><p>Prevenir <b>KeyError</b>, <b>TypeError</b> y errores de <b>desempaquetado</b>.</p></div>
+</div></div><div class="card"><h3 class="card-tit"><i class="fa-solid fa-list-check c-blue"></i> Agenda de la clase (150 min)</h3><div class="tabla-wrap"><table class="tabla"><thead><tr><th>Bloque</th><th>Contenido</th><th>Tiempo</th></tr></thead><tbody>
+<tr><td>Apertura</td><td>Encuadre y pregunta disparadora</td><td>5'</td></tr>
+<tr><td>Módulo 1</td><td>Tuplas y desempaquetado</td><td>25'</td></tr>
+<tr><td>Módulo 2</td><td>Diccionarios (tablas hash)</td><td>30'</td></tr>
+<tr><td>Pausa</td><td>Recreo</td><td>10'</td></tr>
+<tr><td>Módulo 3</td><td>Conjuntos (sets)</td><td>20'</td></tr>
+<tr><td>Módulo 4</td><td>Depuración y errores típicos</td><td>15'</td></tr>
+<tr><td>Módulo 5</td><td>Práctica progresiva (4 niveles)</td><td>40'</td></tr>
+<tr><td>Cierre</td><td>Repaso relámpago y tarea</td><td>5'</td></tr>
+</tbody></table></div></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p><b>Pregunta disparadora:</b> “Tengo una lista con los 40 alumnos y sus teléfonos. ¿Cómo encuentro el teléfono de Sofía?”. Van a responder “recorriendo la lista”. Preguntá: “¿Y si fueran 2 millones?”. Ahí aparece la necesidad de un <b>diccionario</b>.</p>
+<p>Mostrá el cuadro comparativo de las cuatro estructuras: es el mapa de toda la clase. Todos los bloques se pueden ejecutar con ▶ o abrir en la <b>Consola Python</b> (abajo a la derecha).</p></aside></div><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-table c-blue"></i> Cuatro colecciones, cuatro propósitos</h3><div class="tabla-wrap"><table class="tabla"><thead><tr><th></th><th>Lista</th><th>Tupla</th><th>Diccionario</th><th>Conjunto</th></tr></thead><tbody>
+<tr><td>Sintaxis</td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{"a": 1}</code></td><td><code>{1, 2}</code></td></tr>
+<tr><td>Mutable</td><td class="val">Sí</td><td class="none">No</td><td class="val">Sí</td><td class="val">Sí</td></tr>
+<tr><td>Ordenada</td><td class="val">Sí</td><td class="val">Sí</td><td>Por inserción</td><td class="none">No</td></tr>
+<tr><td>Duplicados</td><td class="val">Sí</td><td class="val">Sí</td><td>Claves únicas</td><td class="none">No</td></tr>
+<tr><td>Acceso</td><td>Índice</td><td>Índice</td><td>Clave</td><td>Solo <code>in</code></td></tr>
+<tr><td>Ideal para</td><td>Secuencias que cambian</td><td>Registros fijos</td><td>Buscar por clave</td><td>Únicos y comparaciones</td></tr>
+</tbody></table></div></div><div class="win"><pre class="py" data-title="python — panorama" data-run="1"># El mismo alumno, en cuatro estructuras distintas
+lista = ["Ana", 20, "Ana"]                  # ordenada, mutable, admite repetidos
+tupla = ("Ana", 20)                         # registro fijo: no se modifica
+dicc = {"nombre": "Ana", "edad": 20}        # acceso por clave, no por posición
+conj = {"Python", "SQL", "Python"}          # sin repetidos
+
+print(lista[0], tupla[1], dicc["edad"])     # Ana 20 20
+print(len(conj))                            # 2 -&gt; el "Python" repetido desaparece</pre></div></div></div>
+</section>
+<section id="m1" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-lock"></i><h2>Módulo 1: Tuplas y desempaquetado</h2><span class="sec-sub">| Inmutabilidad, singleton, unpacking y DSU</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 25 min</span><span class="pill"><i class="fa-solid fa-book-open"></i> Teoría</span></div>
+</header>
+
+<h3 class="subtema"><span class="subnum">1.1</span>Definición e inmutabilidad<span class="submin">6 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-lock c-blue"></i> Una lista que no se puede cambiar</h3><p>Una <b>tupla</b> es una secuencia <b>ordenada e inmutable</b>: una vez creada no se pueden agregar, quitar ni reemplazar elementos. Se indexa, se recorre y se corta (slicing) igual que una lista.</p>
+<div class="tiles t3"><div class="tile t-blue"><div class="tile-tit"><i class="fa-solid fa-location-dot"></i> Registros fijos</div><p>Coordenadas <code>(x, y)</code>, fechas, filas de datos.</p></div><div class="tile t-green"><div class="tile-tit"><i class="fa-solid fa-reply-all"></i> Varios retornos</div><p>Una función puede devolver <code>(minimo, maximo)</code>.</p></div><div class="tile t-orange"><div class="tile-tit"><i class="fa-solid fa-key"></i> Claves</div><p>Al ser inmutables, pueden ser claves de diccionario.</p></div></div><p>Como no cambian, solo tienen dos métodos: <code>count()</code> e <code>index()</code>.</p></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Preguntá: “¿Para qué querría algo que <b>no</b> se puede modificar?”. Respuestas buscadas: seguridad (nadie la cambia por accidente), que sirven como claves de diccionario y que expresan intención (“esto es un registro fijo”).</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — tuplas" data-run="1">punto = (3, 5)                      # coordenadas x, y
+fecha = (4, "octubre", 2026)
+
+print(punto[0])                     # 3 -&gt; indexación como en listas
+print(fecha[-1])                    # 2026
+print(fecha[0:2])                   # (4, 'octubre') -&gt; el slicing devuelve OTRA tupla
+print(len(fecha))                   # 3
+
+notas = (7, 9, 7, 10)
+print(notas.count(7))               # 2 -&gt; cuántas veces aparece
+print(notas.index(10))              # 3 -&gt; posición de la primera aparición
+
+def extremos(valores):
+    return min(valores), max(valores)   # devuelve UNA tupla con dos datos
+
+print(extremos([4, 1, 9]))          # (1, 9)
+
+punto[0] = 10                       # TypeError: las tuplas son inmutables</pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">1.2</span>Singleton y creación con tuple()<span class="submin">5 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-circle-dot c-blue"></i> La coma hace la tupla, no los paréntesis</h3><p>Para Python, <code>(5)</code> es solo el número 5 entre paréntesis (como en <code>(2 + 3) * 4</code>). Una tupla de <b>un elemento</b> (singleton) necesita una <b>coma</b>: <code>(5,)</code>. De hecho, los paréntesis son opcionales: <code>t = 1, 2, 3</code> también es una tupla.</p>
+<p>La función <code>tuple()</code> convierte cualquier iterable (lista, string, rango) en tupla, y sin argumentos crea una tupla vacía.</p></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: el singleton sin coma</div><p><code>colores = ("rojo")</code> es un <b>string</b>, no una tupla. Al recorrerlo con <code>for</code> vas a obtener letra por letra: <code>r</code>, <code>o</code>, <code>j</code>, <code>o</code>. Escribí <code>("rojo",)</code>.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — singleton y tuple()" data-run="1">x = (5)
+y = (5,)                        # la coma es obligatoria
+z = 5,                          # también es tupla (sin paréntesis)
+print(type(x), type(y), type(z))   # int, tuple, tuple
+
+colores = ("rojo")              # trampa: es un str
+for c in colores:
+    print(c, end=" ")           # r o j o
+print()
+
+vacia = ()                      # o tuple()
+print(tuple([1, 2, 3]))         # (1, 2, 3) -&gt; desde una lista
+print(tuple("hola"))            # ('h', 'o', 'l', 'a') -&gt; desde un string
+print(tuple(range(3)))          # (0, 1, 2)
+print(len(vacia), len(tuple())) # 0 0</pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">1.3</span>Asignación múltiple, desempaquetado e intercambio<span class="submin">7 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-box-open c-blue"></i> Desempaquetar: una variable por elemento</h3><p>Si a la izquierda del <code>=</code> hay varias variables separadas por comas, Python <b>desempaqueta</b> la secuencia de la derecha: el primer elemento va a la primera variable, el segundo a la segunda, y así. La cantidad tiene que coincidir.</p>
+<p>El intercambio <code>a, b = b, a</code> funciona porque primero se arma la tupla de la derecha <code>(b, a)</code> con los valores <b>viejos</b> y recién después se desempaqueta. No hace falta variable auxiliar.</p>
+<p>Con <code>*resto</code> una variable se queda con “todo lo que sobra” en forma de lista.</p></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: cantidad de variables distinta</div><p><code>a, b = (1, 2, 3)</code> lanza <code>ValueError: too many values to unpack</code>, y <code>a, b, c = (1, 2)</code> lanza <code>not enough values to unpack</code>. Lo vemos a fondo en el Módulo 4.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — desempaquetado" data-run="1"># Asignación múltiple
+a, b, c = 1, 2, 3
+print(a, b, c)                    # 1 2 3
+
+# Desempaquetar una tupla
+alumno = ("Sofía", 21, "Sistemas")
+nombre, edad, carrera = alumno
+print(f"{nombre} tiene {edad} años y estudia {carrera}")
+
+# Intercambio sin variable auxiliar
+x, y = 10, 20
+x, y = y, x                       # derecha: (20, 10) -&gt; se desempaqueta
+print(x, y)                       # 20 10
+
+# Desempaquetar lo que devuelve una función
+def extremos(valores):
+    return min(valores), max(valores)
+minimo, maximo = extremos([4, 1, 9, 7])
+print(minimo, maximo)             # 1 9
+
+# Desempaquetar dentro de un for
+puntos = [(0, 0), (3, 4), (6, 8)]
+for x, y in puntos:
+    print(f"x={x} y={y}")
+
+# El asterisco junta "el resto" en una lista
+primero, *resto = [10, 20, 30, 40]
+print(primero, resto)             # 10 [20, 30, 40]</pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">1.4</span>Patrón DSU: Decorate, Sort, Undecorate<span class="submin">7 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-arrow-down-wide-short c-blue"></i> Ordenar por un criterio propio</h3><p>Las tuplas se comparan <b>elemento a elemento</b>, de izquierda a derecha: <code>(2, "b") &lt; (3, "a")</code> porque 2 &lt; 3; si el primero empata, decide el segundo. El patrón DSU aprovecha esto:</p>
+<div class="tiles t3"><div class="tile t-blue"><div class="tile-tit"><i class="fa-solid fa-tag"></i> Decorate</div><p>Armar tuplas <code>(criterio, dato)</code>.</p></div><div class="tile t-green"><div class="tile-tit"><i class="fa-solid fa-sort"></i> Sort</div><p>Ordenar la lista de tuplas.</p></div><div class="tile t-orange"><div class="tile-tit"><i class="fa-solid fa-eraser"></i> Undecorate</div><p>Quedarse solo con el <code>dato</code>.</p></div></div>
+<p>Es la base del “ranking de palabras más frecuentes” del Módulo 5. Hoy Python también ofrece <code>sorted(lista, key=len)</code>, pero DSU muestra qué pasa por dentro y funciona con criterios combinados.</p></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Escribí en el pizarrón las tres columnas (D, S, U) y llenalas a mano con 4 palabras antes de ejecutar. Remarcá el empate: con <code>reverse=True</code>, a igual largo, quedan en orden alfabético inverso.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — DSU" data-run="1">palabras = ["sol", "biblioteca", "mar", "python", "lista"]
+
+# 1) DECORATE: tuplas (largo, palabra)
+decorada = []
+for p in palabras:
+    decorada.append((len(p), p))
+print(decorada)
+# [(3, 'sol'), (10, 'biblioteca'), (3, 'mar'), (6, 'python'), (5, 'lista')]
+
+# 2) SORT: se ordena por el largo; si empata, por la palabra
+decorada.sort(reverse=True)
+print(decorada)
+# [(10, 'biblioteca'), (6, 'python'), (5, 'lista'), (3, 'sol'), (3, 'mar')]
+
+# 3) UNDECORATE: nos quedamos con la palabra
+ordenadas = []
+for largo, p in decorada:
+    ordenadas.append(p)
+print(ordenadas)        # de la más larga a la más corta
+
+# Las tuplas se comparan elemento por elemento
+print((2, "b") &lt; (3, "a"))    # True  -&gt; decide el primer elemento
+print((3, "a") &lt; (3, "b"))    # True  -&gt; empate en 3, decide el segundo</pre></div></div></div>
+</section>
+<section id="m2" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-key"></i><h2>Módulo 2: Diccionarios (tablas hash)</h2><span class="sec-sub">| Clave-valor, búsqueda O(1), métodos y contadores</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 30 min</span><span class="pill"><i class="fa-solid fa-gears"></i> Teoría + práctica</span></div>
+</header>
+
+<h3 class="subtema"><span class="subnum">2.1</span>Pares clave-valor y búsqueda O(1)<span class="submin">8 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-hashtag c-blue"></i> ¿Por qué un diccionario busca tan rápido?</h3><p>Un diccionario guarda pares <code>clave: valor</code>. Por dentro es una <b>tabla hash</b>: Python aplica una función <code>hash()</code> a la clave y obtiene un número que indica en qué “casillero” guardar el valor. Para buscar, vuelve a calcular el hash y va <b>directo</b> a ese casillero.</p>
+<div class="comparar"><div class="mal"><span>Lista: <code>x in lista</code></span><small>Revisa uno por uno: con n elementos, hasta n comparaciones. <b>O(n)</b></small></div><div class="bien"><span>Diccionario: <code>clave in d</code></span><small>Un cálculo de hash y un salto: casi no depende de n. <b>O(1)</b></small></div></div>
+<p class="muted">Simulador (simplificado, con 8 casilleros): escribí una fruta y buscala o agregala.</p>
+<div class="hashsim" id="hashsim">
+  <div class="hs-in"><input id="hs-clave" aria-label="Clave" placeholder="clave, ej. pera" value="pera"><button class="chip-btn on" data-hs="buscar" type="button">Buscar</button><button class="chip-btn accion" data-hs="agregar" type="button">Agregar</button><button class="chip-btn" data-hs="reset" type="button">Reiniciar</button></div>
+  <div class="hs-tabla"></div>
+  <p class="hs-msg" aria-live="polite"></p>
+</div></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Con el simulador, buscá <code>pera</code>: un solo salto. Después contá cuántas comparaciones necesitaría una lista para encontrar la última fruta. Aclará que el hash real es otro (y más grande), pero la idea es la misma.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — clave-valor" data-run="1">precios = {"manzana": 1200, "pera": 1500, "banana": 900}
+
+print(precios["pera"])          # 1500 -&gt; acceso por CLAVE, no por posición
+precios["kiwi"] = 2100          # agregar un par nuevo
+precios["banana"] = 950         # misma clave: REEMPLAZA el valor
+del precios["manzana"]          # eliminar un par
+print(precios)                  # {'pera': 1500, 'banana': 950, 'kiwi': 2100}
+print(len(precios))             # 3 pares
+
+# 'in' pregunta por las CLAVES (en O(1))
+print("kiwi" in precios)        # True
+print(1500 in precios)          # False -&gt; 1500 es un valor, no una clave
+
+# Las claves son únicas: la última asignación gana
+d = {"a": 1, "a": 2}
+print(d)                        # {'a': 2}</pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">2.2</span>Restricciones de claves: hashability<span class="submin">6 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-fingerprint c-blue"></i> Solo lo inmutable puede ser clave</h3><p>Si una clave cambiara después de guardarla, su hash cambiaría y el diccionario la buscaría en otro casillero: se perdería. Por eso las claves deben ser <b>hashables</b>, es decir, inmutables: <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code> y <b>tuplas</b> (de elementos inmutables).</p>
+<div class="comparar"><div class="bien"><span>Claves válidas</span><code>"dni"</code><code>42</code><code>("Pérez", "Ana")</code></div><div class="mal"><span>Claves inválidas</span><code>["Pérez", "Ana"]</code><code>{"a": 1}</code><code>(1, [2, 3])</code></div></div>
+<p>Las <b>claves compuestas</b> con tuplas son muy útiles: <code>(apellido, nombre)</code>, <code>(fila, columna)</code>, <code>(sucursal, mes)</code>. Los <b>valores</b>, en cambio, pueden ser de cualquier tipo, incluso listas u otros diccionarios.</p></div></div><div class="col"><div class="win"><pre class="py" data-title="python — claves válidas e inválidas" data-run="1"># Clave compuesta con una tupla
+agenda = {}
+agenda[("Pérez", "Ana")] = "11-5555-1234"
+agenda[("Gómez", "Luis")] = "11-4444-9876"
+print(agenda[("Pérez", "Ana")])
+
+for (apellido, nombre), tel in agenda.items():
+    print(f"{nombre} {apellido}: {tel}")
+
+# Coordenadas como clave: un tablero "disperso"
+tablero = {(0, 0): "X", (1, 1): "O"}
+print(tablero.get((2, 2), "vacío"))     # vacío
+
+# Los valores sí pueden ser mutables
+materias = {"Ana": ["Álgebra", "Programación"]}
+materias["Ana"].append("Física")
+print(materias)
+
+print(hash("hola") == hash("hola"))     # True: mismo dato, mismo hash
+d = {}
+d[["Pérez", "Ana"]] = "11-5555-1234"    # TypeError: unhashable type: 'list' </pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">2.3</span>Métodos principales: keys, values, items y get<span class="submin">8 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-wrench c-blue"></i> Recorrer y consultar</h3><div class="tabla-wrap"><table class="tabla"><thead><tr><th>Método</th><th>Devuelve</th><th>Uso típico</th></tr></thead><tbody>
+<tr><td><code>d.keys()</code></td><td>Las claves</td><td><code>for k in d:</code> (es lo mismo)</td></tr>
+<tr><td><code>d.values()</code></td><td>Los valores</td><td>Sumar, buscar el máximo</td></tr>
+<tr><td><code>d.items()</code></td><td>Tuplas <code>(clave, valor)</code></td><td><code>for k, v in d.items():</code></td></tr>
+<tr><td><code>d.get(k, default)</code></td><td>El valor, o <code>default</code> si no existe</td><td>Acceso <b>seguro</b>, sin KeyError</td></tr>
+<tr><td><code>d.pop(k, default)</code></td><td>El valor, y lo elimina</td><td>Sacar un elemento</td></tr>
+</tbody></table></div>
+<p><code>d[k]</code> falla si la clave no existe; <code>d.get(k)</code> devuelve <code>None</code> (o el valor por defecto que indiques). Elegí según qué querés que pase cuando falta la clave.</p></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: ordenar un diccionario</div><p><code>d.sort()</code> no existe. <code>sorted(d)</code> devuelve una <b>lista de claves</b> ordenadas; <code>sorted(d.items())</code>, una lista de tuplas ordenadas por clave. Para ordenar por <b>valor</b>, usá DSU con tuplas <code>(valor, clave)</code>.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — métodos de diccionario" data-run="1">stock = {"tornillos": 120, "tuercas": 45, "arandelas": 300}
+
+print(list(stock.keys()))       # ['tornillos', 'tuercas', 'arandelas']
+print(list(stock.values()))     # [120, 45, 300]
+print(list(stock.items()))      # [('tornillos', 120), ('tuercas', 45), ...]
+
+# Recorrido idiomático: clave y valor a la vez
+for producto, cantidad in stock.items():
+    print(f"{producto:&lt;10} {cantidad:&gt;4}")
+
+# Acceso seguro con get
+print(stock.get("clavos"))         # None
+print(stock.get("clavos", 0))      # 0 -&gt; valor por defecto
+print(stock.get("tuercas", 0))     # 45
+
+# Total y producto con más stock
+total = 0
+for cantidad in stock.values():
+    total += cantidad
+print("Total:", total)             # 465
+
+print(sorted(stock))               # claves en orden alfabético
+print(sorted(stock.items()))       # tuplas ordenadas por clave</pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">2.4</span>Patrón contador: histograma de frecuencias<span class="submin">8 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-chart-column c-blue"></i> Contar con un diccionario</h3><p>Es uno de los usos más frecuentes en análisis de datos: la <b>clave</b> es lo que se cuenta (una letra, una palabra, un usuario) y el <b>valor</b> es cuántas veces apareció.</p>
+<div class="comparar"><div class="mal"><span>Versión larga</span><code>if c in cont:</code><code>&nbsp;&nbsp;&nbsp;&nbsp;cont[c] += 1</code><code>else:</code><code>&nbsp;&nbsp;&nbsp;&nbsp;cont[c] = 1</code></div><div class="bien"><span>Versión idiomática</span><code>cont[c] = cont.get(c, 0) + 1</code><small>si no existe, arranca en 0</small></div></div></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: <code>cont[c] += 1</code> sin inicializar</div><p>La primera vez que aparece una clave, <code>cont[c] += 1</code> intenta leer <code>cont[c]</code> antes de que exista: <b>KeyError</b>. Usá <code>get(c, 0)</code> o preguntá antes con <code>in</code>.</p></aside><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Ejecutá primero la versión larga y después la idiomática: el resultado es el mismo. Pedí que expliquen en voz alta qué devuelve <code>cont.get(c, 0)</code> la primera vez que aparece una letra.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — contador" data-run="1">palabra = "banana"
+
+# Versión explícita con if / in
+cont = {}
+for c in palabra:
+    if c in cont:
+        cont[c] += 1
+    else:
+        cont[c] = 1
+print(cont)                        # {'b': 1, 'a': 3, 'n': 2}
+
+# Versión idiomática con get
+cont = {}
+for c in palabra:
+    cont[c] = cont.get(c, 0) + 1
+print(cont)                        # {'b': 1, 'a': 3, 'n': 2}
+
+# Histograma en texto, ordenado por letra
+for letra, n in sorted(cont.items()):
+    print(f"{letra} | {'*' * n} {n}")
+
+# La más frecuente: recorrer items() buscando el máximo
+mas, veces = None, 0
+for letra, n in cont.items():
+    if n &gt; veces:
+        mas, veces = letra, n
+print(f"Más frecuente: '{mas}' ({veces} veces)")</pre></div></div></div>
+</section>
+<section id="pausa" class="seccion pausa"><div class="pausa-in"><i class="fa-solid fa-mug-hot"></i><div><h2>Pausa: 10 minutos</h2><p>Volvemos con conjuntos: la herramienta para quedarse con lo único y comparar grupos.</p></div></div></section>
+<section id="m3" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-circle-nodes"></i><h2>Módulo 3: Conjuntos (sets)</h2><span class="sec-sub">| Elementos únicos, sin orden, con operaciones matemáticas</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 20 min</span><span class="pill"><i class="fa-solid fa-gears"></i> Teoría + práctica</span></div>
+</header>
+
+<h3 class="subtema"><span class="subnum">3.1</span>Una colección de elementos únicos<span class="submin">6 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-circle-nodes c-blue"></i> Únicos, sin orden, búsqueda rápida</h3><p>Un <b>conjunto</b> guarda elementos <b>sin repetir</b> y <b>sin orden</b>. Internamente usa la misma tabla hash que los diccionarios (solo claves, sin valores), así que <code>x in conjunto</code> también es O(1) y sus elementos deben ser hashables.</p>
+<div class="tiles t3"><div class="tile t-blue"><div class="tile-tit"><i class="fa-solid fa-filter"></i> Quitar duplicados</div><p><code>set(lista)</code> en una línea.</p></div><div class="tile t-green"><div class="tile-tit"><i class="fa-solid fa-magnifying-glass"></i> Pertenencia rápida</div><p><code>if x in vistos:</code></p></div><div class="tile t-orange"><div class="tile-tit"><i class="fa-solid fa-code-compare"></i> Comparar grupos</div><p>Unión, intersección, diferencia.</p></div></div></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: indexar un conjunto o confiar en su orden</div><p><code>s[0]</code> lanza <code>TypeError: 'set' object is not subscriptable</code>: no hay posiciones. Y el orden en que se <b>imprime</b> un conjunto puede variar entre ejecuciones y versiones de Python. Si necesitás orden, usá <code>sorted(conjunto)</code>, que devuelve una lista.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — conjuntos" data-run="1">inscriptos = ["Ana", "Luis", "Ana", "Sofía", "Luis", "Ana"]
+
+unicos = set(inscriptos)          # elimina los duplicados
+print(len(inscriptos), len(unicos))   # 6 3
+print(sorted(unicos))             # ['Ana', 'Luis', 'Sofía'] -&gt; con orden
+
+colores = {"rojo", "verde"}
+colores.add("azul")               # agregar
+colores.add("rojo")               # ya estaba: no pasa nada
+colores.discard("negro")          # quitar sin error aunque no exista
+colores.remove("verde")           # quitar (KeyError si no existe)
+print(sorted(colores))            # ['azul', 'rojo']
+print("azul" in colores)          # True -&gt; búsqueda O(1)
+
+# Patrón "ya lo vi": detectar el primer repetido
+vistos = set()
+for nombre in inscriptos:
+    if nombre in vistos:
+        print("Primer repetido:", nombre)
+        break
+    vistos.add(nombre)</pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">3.2</span>{} es un diccionario: el conjunto vacío es set()<span class="submin">4 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-triangle-exclamation c-blue"></i> La trampa de las llaves vacías</h3><p>Las llaves <code>{ }</code> se usan para diccionarios y para conjuntos. Python decide por el contenido: con pares <code>clave: valor</code> es diccionario; con elementos sueltos, conjunto. Pero <b>vacías</b>, <code>{}</code> es siempre un <b>diccionario</b> (los diccionarios existían antes). El conjunto vacío se crea con <code>set()</code>.</p></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: <code>vistos = {}</code> y después <code>vistos.add(x)</code></div><p>Da <code>AttributeError: 'dict' object has no attribute 'add'</code>. El mensaje habla de <code>dict</code> aunque vos pensabas en un conjunto: esa es la pista. Cambiá a <code>vistos = set()</code>.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — {} vs set()" data-run="1">a = {}
+b = set()
+c = {1, 2}
+d = {"x": 1}
+print(type(a))        # &lt;class 'dict'&gt;  &lt;- ¡no es un conjunto!
+print(type(b))        # &lt;class 'set'&gt;
+print(type(c))        # &lt;class 'set'&gt;
+print(type(d))        # &lt;class 'dict'&gt;
+
+vistos = {}
+vistos.add("Ana")     # AttributeError: 'dict' object has no attribute 'add' </pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">3.3</span>Operaciones de conjuntos<span class="submin">10 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-object-ungroup c-blue"></i> Unión, intersección, diferencia y diferencia simétrica</h3><p class="muted">Tocá una operación para ver qué región del diagrama de Venn devuelve.</p>
+<div class="venn" id="venn">
+  <div class="alias-ctrl"><button class="chip-btn on" data-op="|" type="button"><code>A | B</code> unión</button><button class="chip-btn" data-op="&amp;" type="button"><code>A &amp; B</code> intersección</button><button class="chip-btn" data-op="-" type="button"><code>A - B</code> diferencia</button><button class="chip-btn" data-op="r" type="button"><code>B - A</code></button><button class="chip-btn" data-op="^" type="button"><code>A ^ B</code> simétrica</button></div>
+  <svg viewBox="0 0 420 230" role="img" aria-label="Diagrama de Venn de los conjuntos A y B">
+    <defs><clipPath id="clipA"><circle cx="160" cy="120" r="95"/></clipPath></defs>
+    <circle class="rA" cx="160" cy="120" r="95"/>
+    <circle class="rB" cx="260" cy="120" r="95"/>
+    <circle class="rI" cx="260" cy="120" r="95" clip-path="url(#clipA)"/>
+    <circle class="borde" cx="160" cy="120" r="95"/><circle class="borde" cx="260" cy="120" r="95"/>
+    <text x="95" y="30" class="vt">A: Python</text><text x="270" y="30" class="vt">B: Datos</text>
+    <text x="110" y="105" class="ve">Ana</text><text x="110" y="140" class="ve">Sofía</text>
+    <text x="210" y="105" class="ve" text-anchor="middle">Luis</text><text x="210" y="140" class="ve" text-anchor="middle">Tomás</text>
+    <text x="280" y="105" class="ve">Valen</text><text x="280" y="140" class="ve">Juli</text>
+  </svg>
+  <div class="venn-res" aria-live="polite"></div>
+</div></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: confundir <code>-</code> con <code>^</code></div><p><code>A - B</code> no es simétrica: son los elementos de A que <b>no</b> están en B, y <code>A - B</code> suele ser distinto de <code>B - A</code>. Si querés “los que están en uno solo de los dos”, es <code>A ^ B</code>.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — operaciones" data-run="1">python = {"Ana", "Luis", "Sofía", "Tomás"}   # cursan Python
+datos = {"Luis", "Tomás", "Valen", "Juli"}    # cursan Datos
+
+print(sorted(python | datos))   # unión: los que cursan alguna
+print(sorted(python &amp; datos))   # intersección: cursan las dos -&gt; ['Luis', 'Tomás']
+print(sorted(python - datos))   # diferencia: solo Python -&gt; ['Ana', 'Sofía']
+print(sorted(datos - python))   # solo Datos -&gt; ['Juli', 'Valen']
+print(sorted(python ^ datos))   # simétrica: cursan UNA sola
+
+# Equivalentes con métodos (aceptan listas como argumento)
+print(sorted(python.union(["Pía"])))
+print(sorted(python.intersection(["Ana", "Zoe"])))   # ['Ana']
+
+# Comparaciones entre conjuntos
+print({"Luis"} &lt;= python)       # True -&gt; subconjunto
+print(python.isdisjoint({"Zoe"}))   # True -&gt; no comparten nada</pre></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Pedí que, antes de tocar el diagrama, levanten la mano los que “cursan las dos”. Es la intersección hecha con personas: ayuda mucho a fijar <code>&amp;</code> frente a <code>|</code>.</p></aside></div></div>
+</section>
+<section id="m4" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-bug-slash"></i><h2>Módulo 4: Depuración y errores típicos</h2><span class="sec-sub">| KeyError, TypeError y desempaquetado</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 15 min</span><span class="pill"><i class="fa-solid fa-gears"></i> Teoría + práctica</span></div>
+</header>
+
+<h3 class="subtema"><span class="subnum">4.1</span>KeyError: la clave que no está<span class="submin">6 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-key c-blue"></i> Tres formas de prevenirlo</h3><div class="tiles t3"><div class="tile t-blue"><div class="tile-tit"><i class="fa-solid fa-question"></i> Preguntar con in</div><p><code>if k in d:</code> antes de leer.</p></div><div class="tile t-green"><div class="tile-tit"><i class="fa-solid fa-hand-holding"></i> Usar get()</div><p><code>d.get(k, valor_por_defecto)</code></p></div><div class="tile t-orange"><div class="tile-tit"><i class="fa-solid fa-shield-halved"></i> try / except</div><p><code>except KeyError:</code> cuando faltar es la excepción.</p></div></div>
+<p><b>Para depurar:</b> cuando aparece un KeyError, imprimí la clave con <code>repr()</code> y la lista de claves. Muchas veces el problema es invisible: un espacio de más, una mayúscula o un número guardado como texto (<code>"5"</code> no es <code>5</code>).</p></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: claves que “parecen” iguales</div><p><code>"Ana"</code>, <code>"ana"</code> y <code>"Ana "</code> son tres claves distintas. Normalizá antes de guardar y antes de buscar: <code>clave.strip().lower()</code>.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — prevenir KeyError" data-run="1">notas = {"ana": 8, "luis": 6}
+buscado = "Ana "                       # viene de un input()...
+
+print("[DEBUG] buscado:", repr(buscado))
+print("[DEBUG] claves:", list(notas.keys()))
+
+# 1) Con in
+clave = buscado.strip().lower()        # normalizar primero
+if clave in notas:
+    print("Nota:", notas[clave])
+
+# 2) Con get y valor por defecto
+print(notas.get("sofía", "sin nota"))  # sin nota
+
+# 3) Con try / except
+try:
+    print(notas["pedro"])
+except KeyError as e:
+    print("No existe la clave", e)
+
+print(notas[buscado])                  # KeyError: 'Ana ' </pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">4.2</span>TypeError al modificar tuplas<span class="submin">4 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-lock c-blue"></i> Si necesitás cambiarla, creá otra</h3><p>Las tuplas no tienen <code>append</code>, <code>remove</code> ni asignación por índice. Si el dato tiene que cambiar, hay dos salidas: <b>crear una tupla nueva</b> (por concatenación o slicing) o convertir a lista, modificar y volver a tupla. Y si cambia seguido, quizás debía ser una lista desde el principio.</p></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: una tupla con una lista adentro</div><p><code>t = (1, [2, 3])</code>: la tupla es inmutable, pero la lista que contiene <b>no</b>. <code>t[1].append(4)</code> funciona y cambia el contenido, y además esa tupla no es hashable, así que no puede ser clave de diccionario.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — tuplas inmutables" data-run="1">punto = (3, 5)
+
+# Opción 1: construir una tupla NUEVA
+punto = (10,) + punto[1:]      # (10, 5)
+print(punto)
+
+# Opción 2: lista -&gt; modificar -&gt; tupla
+tmp = list(punto)
+tmp.append(7)
+punto = tuple(tmp)
+print(punto)                   # (10, 5, 7)
+
+# Trampa: la tupla no cambia, pero su lista interna sí
+t = (1, [2, 3])
+t[1].append(4)
+print(t)                       # (1, [2, 3, 4])
+
+punto.append(9)                # AttributeError: 'tuple' object has no attribute 'append' </pre></div></div></div>
+
+<h3 class="subtema"><span class="subnum">4.3</span>Errores de desempaquetado<span class="submin">5 min</span></h3>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-box-open c-blue"></i> Contar antes de desempaquetar</h3><p>El desempaquetado exige que la cantidad de variables coincida con la cantidad de elementos. Si no, aparece un <code>ValueError</code>. Para depurarlo, imprimí <code>len()</code> y <code>repr()</code> del dato justo antes de la línea que falla.</p>
+<div class="comparar"><div class="mal"><span>Recorrer un diccionario así</span><code>for k, v in d:</code><small>itera solo las claves e intenta desarmar cada string</small></div><div class="bien"><span>Correcto</span><code>for k, v in d.items():</code><small>items() entrega tuplas (clave, valor)</small></div></div></div><aside class="alerta"><div class="alerta-tit"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de error típico: el <code>for k, v in d</code> que a veces “funciona”</div><p>Si las claves son strings de <b>exactamente 2 letras</b>, <code>for k, v in d:</code> no falla: desarma <code>"ok"</code> en <code>k = "o"</code> y <code>v = "k"</code>. El programa sigue con datos incorrectos y sin ningún aviso. Siempre <code>.items()</code>.</p></aside></div><div class="col"><div class="win"><pre class="py" data-title="python — desempaquetado" data-run="1">registro = "Ana;21;Sistemas;CABA"
+partes = registro.split(";")
+print("[DEBUG]", len(partes), repr(partes))     # 4 partes
+
+nombre, edad, *resto = partes                   # el * absorbe lo que sobra
+print(nombre, edad, resto)
+
+edades = {"Ana": 21, "Luis": 19}
+for nombre, edad in edades.items():             # correcto
+    print(nombre, edad)
+
+codigos = {"ok": 200, "no": 404}
+for k, v in codigos:                            # sin .items(): ¡no falla!
+    print("[DEBUG] k =", k, "v =", v)           # k='o' v='k' -&gt; datos basura
+
+nombre, edad = partes     # ValueError: too many values to unpack (expected 2)</pre></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Este último bloque es ideal para la técnica de “leer el error de abajo hacia arriba” de la clase de excepciones. Ejecutalo, leé el mensaje y pedí que identifiquen <b>cuántos</b> valores había y cuántas variables.</p></aside></div></div>
+</section>
+<section id="m5" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-dumbbell"></i><h2>Módulo 5: Práctica progresiva</h2><span class="sec-sub">| De la traducción al análisis de logs</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 40 min</span><span class="pill"><i class="fa-solid fa-laptop-code"></i> Práctica</span></div>
+</header>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-route c-blue"></i> Cómo usar esta práctica</h3><p>Cada ejercicio tiene un editor para escribir y <b>ejecutar</b> tu solución, una pista y la solución explicada paso a paso. Los niveles avanzado y Dios trabajan con texto que simula archivos: el mismo código funciona con <code>open()</code> en tu Python local.</p>
+<div class="niveles"><span class="badge b-basico"><i class="fa-solid fa-seedling"></i> Básico: 8'</span><span class="badge b-intermedio"><i class="fa-solid fa-layer-group"></i> Intermedio: 12'</span><span class="badge b-avanzado"><i class="fa-solid fa-rocket"></i> Avanzado: 10'</span><span class="badge b-dios"><i class="fa-solid fa-crown"></i> Nivel Dios: 10'</span></div></div></div>
+<div class="col"><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p><b>Dinámica sugerida:</b> parejas que se rotan los roles en cada nivel. Resolvé en vivo <b>I1</b> (el contador es la pieza que se reutiliza en A1 y D1) y armá <b>D1</b> guiado en el pizarrón: primero los guardianes, después los dos contadores, al final el máximo.</p>
+<p>Para D1, si tenés el archivo <code>mbox-short.txt</code> del curso, ejecutá la versión con <code>open()</code> en el proyector y compará con el texto simulado.</p></aside></div></div>
+<h3 class="nivel-tit c-green"><i class="fa-solid fa-seedling"></i> Nivel básico: diccionario de traducción e intercambios</h3>
+<div class="ej-grid"><article class="ej n-basico" id="b1">
+  <div class="ej-head"><span class="ej-id">B1</span><h4>Diccionario de traducción</h4><span class="badge b-basico"><i class="fa-solid fa-seedling"></i> Básico</span></div>
+  <div class="ej-enun"><p>Creá un diccionario <code>es_en</code> que traduzca al menos 6 palabras del español al inglés. Traducí la frase palabra por palabra. Las palabras que no estén en el diccionario se muestran entre corchetes, por ejemplo <code>[rápido]</code>. Al final informá cuántas no se pudieron traducir.</p></div><div class="salida-esp"><span>Salida esperada</span><pre>the cat eats [pescado] and the dog sleeps
+Palabras sin traducir: 1</pre></div>
+  <div class="practica"><div class="practica-bar"><span><i class="fa-solid fa-keyboard"></i> Tu solución</span><span class="practica-btns"><button class="btn-sec js-reset">Restaurar</button><button class="btn-run js-run-ej"><i class="fa-solid fa-play"></i> Ejecutar</button></span></div>
+  <textarea class="editor" spellcheck="false" data-start="es_en = {"el": "the", "gato": "cat"}
+frase = "el gato come pescado y el perro duerme"
+">es_en = {"el": "the", "gato": "cat"}
+frase = "el gato come pescado y el perro duerme"
+</textarea><pre class="consola" hidden></pre></div>
+  <details class="pista"><summary><i class="fa-regular fa-lightbulb"></i> Ver pista</summary><div><p><code>frase.split()</code> separa las palabras. Para traducir sin KeyError: <code>es_en.get(p, "[" + p + "]")</code>.</p></div></details>
+  <details class="solucion"><summary><i class="fa-solid fa-key"></i> Ver solución explicada</summary><div><ol class="pasos"><li>Completá el diccionario con pares <code>"español": "inglés"</code>.</li><li>Separá la frase con <code>split()</code> y recorré cada palabra.</li><li>Traducí con <code>get(p, f"[{p}]")</code>: si la palabra no está, devuelve el valor por defecto en lugar de fallar.</li><li>Para contar las no traducidas, preguntá con <code>p not in es_en</code>.</li><li>Uní el resultado con <code>" ".join(lista)</code>.</li></ol><div class="win"><pre class="py" data-title="python — solución B1" data-run="1">es_en = {
+    "el": "the", "gato": "cat", "perro": "dog",
+    "come": "eats", "duerme": "sleeps", "y": "and",
+}
+frase = "el gato come pescado y el perro duerme"
+
+traduccion = []
+sin_traducir = 0
+for p in frase.split():
+    traduccion.append(es_en.get(p, f"[{p}]"))   # acceso seguro
+    if p not in es_en:
+        sin_traducir += 1
+
+print(" ".join(traduccion))
+print("Palabras sin traducir:", sin_traducir)</pre></div></div></details>
+</article><article class="ej n-basico" id="b2">
+  <div class="ej-head"><span class="ej-id">B2</span><h4>Intercambios con tuplas</h4><span class="badge b-basico"><i class="fa-solid fa-seedling"></i> Básico</span></div>
+  <div class="ej-enun"><p>(1) Intercambiá los valores de <code>a</code> y <code>b</code> sin variable auxiliar. (2) Rotá tres variables: <code>x</code> toma el valor de <code>y</code>, <code>y</code> el de <code>z</code> y <code>z</code> el de <code>x</code>. (3) Dados dos números, dejá en <code>menor</code> el más chico y en <code>mayor</code> el más grande usando un intercambio.</p></div><div class="salida-esp"><span>Salida esperada</span><pre>té café
+2 3 1
+4 9</pre></div>
+  <div class="practica"><div class="practica-bar"><span><i class="fa-solid fa-keyboard"></i> Tu solución</span><span class="practica-btns"><button class="btn-sec js-reset">Restaurar</button><button class="btn-run js-run-ej"><i class="fa-solid fa-play"></i> Ejecutar</button></span></div>
+  <textarea class="editor" spellcheck="false" data-start="a, b = "café", "té"
+x, y, z = 1, 2, 3
+menor, mayor = 9, 4
+">a, b = "café", "té"
+x, y, z = 1, 2, 3
+menor, mayor = 9, 4
+</textarea><pre class="consola" hidden></pre></div>
+  <details class="pista"><summary><i class="fa-regular fa-lightbulb"></i> Ver pista</summary><div><p>Todo se resuelve con la forma <code>v1, v2 = v2, v1</code>. Para rotar tres: <code>x, y, z = y, z, x</code>.</p></div></details>
+  <details class="solucion"><summary><i class="fa-solid fa-key"></i> Ver solución explicada</summary><div><ol class="pasos"><li>La derecha de <code>a, b = b, a</code> se evalúa completa <b>antes</b> de asignar: por eso no se pierde ningún valor.</li><li>La rotación es la misma idea con tres elementos.</li><li>Para ordenar dos valores: <code>if menor &gt; mayor:</code> intercambiarlos.</li></ol><div class="win"><pre class="py" data-title="python — solución B2" data-run="1">a, b = "café", "té"
+a, b = b, a
+print(a, b)                  # té café
+
+x, y, z = 1, 2, 3
+x, y, z = y, z, x            # rotación
+print(x, y, z)               # 2 3 1
+
+menor, mayor = 9, 4
+if menor &gt; mayor:
+    menor, mayor = mayor, menor
+print(menor, mayor)          # 4 9</pre></div></div></details>
+</article></div>
+<h3 class="nivel-tit c-orange"><i class="fa-solid fa-layer-group"></i> Nivel intermedio: histogramas e intersecciones</h3>
+<div class="ej-grid"><article class="ej n-intermedio" id="i1">
+  <div class="ej-head"><span class="ej-id">I1</span><h4>Histograma de letras y de palabras</h4><span class="badge b-intermedio"><i class="fa-solid fa-layer-group"></i> Intermedio</span></div>
+  <div class="ej-enun"><p>Para la frase dada: (1) contá cuántas veces aparece cada <b>letra</b>, sin distinguir mayúsculas y salteando espacios y signos, y mostrá un histograma ordenado alfabéticamente con asteriscos; (2) contá las <b>palabras</b> e informá la más frecuente.</p></div><div class="salida-esp"><span>Salida esperada</span><pre>a | ******** (8)
+c | * (1)
+d | ** (2)
+e | ** (2)
+l | ***** (5)
+s | *** (3)
+{'la': 3, 'casa': 1, 'de': 2, 'sal': 1, 'sala': 1}
+Palabra más frecuente: 'la' (3 veces)</pre></div>
+  <div class="practica"><div class="practica-bar"><span><i class="fa-solid fa-keyboard"></i> Tu solución</span><span class="practica-btns"><button class="btn-sec js-reset">Restaurar</button><button class="btn-run js-run-ej"><i class="fa-solid fa-play"></i> Ejecutar</button></span></div>
+  <textarea class="editor" spellcheck="false" data-start="frase = "La casa de la sal de la sala"
+">frase = "La casa de la sal de la sala"
+</textarea><pre class="consola" hidden></pre></div>
+  <details class="pista"><summary><i class="fa-regular fa-lightbulb"></i> Ver pista</summary><div><p>Usá <code>c.isalpha()</code> para quedarte solo con letras y el patrón <code>cont[c] = cont.get(c, 0) + 1</code>. Para ordenar por letra: <code>sorted(cont.items())</code>.</p></div></details>
+  <details class="solucion"><summary><i class="fa-solid fa-key"></i> Ver solución explicada</summary><div><ol class="pasos"><li>Pasá todo a minúsculas con <code>lower()</code> para que <code>L</code> y <code>l</code> cuenten juntas.</li><li>Recorré carácter por carácter; con <code>if not c.isalpha(): continue</code> salteás espacios y signos (patrón guardián).</li><li>Contá con <code>get(c, 0) + 1</code>.</li><li>Histograma: <code>for letra, n in sorted(cont.items())</code> e imprimí <code>"*" * n</code>.</li><li>Para las palabras, el mismo contador sobre <code>frase.lower().split()</code>, y buscá el máximo recorriendo <code>items()</code>.</li></ol><div class="win"><pre class="py" data-title="python — solución I1" data-run="1">frase = "La casa de la sal de la sala"
+
+# 1) Letras
+letras = {}
+for c in frase.lower():
+    if not c.isalpha():              # guardián: solo letras
+        continue
+    letras[c] = letras.get(c, 0) + 1
+
+for letra, n in sorted(letras.items()):
+    print(f"{letra} | {'*' * n} ({n})")
+
+# 2) Palabras
+palabras = {}
+for p in frase.lower().split():
+    palabras[p] = palabras.get(p, 0) + 1
+print(palabras)
+
+mas, veces = None, 0
+for p, n in palabras.items():
+    if n &gt; veces:
+        mas, veces = p, n
+print(f"Palabra más frecuente: '{mas}' ({veces} veces)")</pre></div></div></details>
+</article><article class="ej n-intermedio" id="i2">
+  <div class="ej-head"><span class="ej-id">I2</span><h4>Intersecciones entre listas con conjuntos</h4><span class="badge b-intermedio"><i class="fa-solid fa-layer-group"></i> Intermedio</span></div>
+  <div class="ej-enun"><p>Tenés los legajos inscriptos en dos materias (con repetidos por errores de carga). Informá: (1) cuántos alumnos distintos hay en cada materia, (2) quiénes cursan las dos, (3) quiénes cursan solo Programación, (4) el total de alumnos distintos entre ambas y (5) quiénes cursan exactamente una.</p></div><div class="salida-esp"><span>Salida esperada</span><pre>Distintos en Programación: 5
+Distintos en Bases: 5
+Cursan las dos: [103, 105]
+Solo Programación: [101, 102, 104]
+Total distintos: 8
+Exactamente una: [101, 102, 104, 106, 107, 108]</pre></div>
+  <div class="practica"><div class="practica-bar"><span><i class="fa-solid fa-keyboard"></i> Tu solución</span><span class="practica-btns"><button class="btn-sec js-reset">Restaurar</button><button class="btn-run js-run-ej"><i class="fa-solid fa-play"></i> Ejecutar</button></span></div>
+  <textarea class="editor" spellcheck="false" data-start="programacion = [101, 102, 103, 104, 102, 105, 101]
+bases = [103, 105, 106, 107, 107, 108]
+">programacion = [101, 102, 103, 104, 102, 105, 101]
+bases = [103, 105, 106, 107, 107, 108]
+</textarea><pre class="consola" hidden></pre></div>
+  <details class="pista"><summary><i class="fa-regular fa-lightbulb"></i> Ver pista</summary><div><p>Convertí cada lista con <code>set()</code>. Después: <code>&amp;</code>, <code>-</code>, <code>|</code> y <code>^</code>. Mostrá los resultados con <code>sorted()</code> para que tengan orden.</p></div></details>
+  <details class="solucion"><summary><i class="fa-solid fa-key"></i> Ver solución explicada</summary><div><ol class="pasos"><li><code>p = set(programacion)</code> y <code>b = set(bases)</code> eliminan los duplicados.</li><li><code>len(p)</code> y <code>len(b)</code> son los alumnos distintos.</li><li>Intersección <code>p &amp; b</code>; diferencia <code>p - b</code>; unión <code>p | b</code>; simétrica <code>p ^ b</code>.</li><li>Sin conjuntos, la intersección exigiría un doble bucle O(n·m); con conjuntos, cada <code>in</code> es O(1).</li></ol><div class="win"><pre class="py" data-title="python — solución I2" data-run="1">programacion = [101, 102, 103, 104, 102, 105, 101]
+bases = [103, 105, 106, 107, 107, 108]
+
+p = set(programacion)
+b = set(bases)
+
+print("Distintos en Programación:", len(p))      # 5
+print("Distintos en Bases:", len(b))             # 5
+print("Cursan las dos:", sorted(p &amp; b))          # [103, 105]
+print("Solo Programación:", sorted(p - b))       # [101, 102, 104]
+print("Total distintos:", len(p | b))            # 8
+print("Exactamente una:", sorted(p ^ b))</pre></div></div></details>
+</article></div>
+<h3 class="nivel-tit c-red"><i class="fa-solid fa-rocket"></i> Nivel avanzado: texto, puntuación y ranking con tuplas</h3>
+<div class="ej-grid dios"><article class="ej n-avanzado" id="a1">
+  <div class="ej-head"><span class="ej-id">A1</span><h4>Palabras más frecuentes de un texto</h4><span class="badge b-avanzado"><i class="fa-solid fa-rocket"></i> Avanzado</span></div>
+  <div class="ej-enun"><p>Simulamos un archivo de texto con una cadena multilínea. Procesalo línea por línea: pasá a minúsculas, <b>eliminá la puntuación</b> con <code>string.punctuation</code> (y también <code>¿</code> y <code>¡</code>, que no están incluidos), contá las palabras con un diccionario y mostrá el <b>top 5</b> usando una lista de tuplas <code>(frecuencia, palabra)</code> ordenada de mayor a menor.</p></div>
+  <div class="practica"><div class="practica-bar"><span><i class="fa-solid fa-keyboard"></i> Tu solución</span><span class="practica-btns"><button class="btn-sec js-reset">Restaurar</button><button class="btn-run js-run-ej"><i class="fa-solid fa-play"></i> Ejecutar</button></span></div>
+  <textarea class="editor" spellcheck="false" data-start="import string
+
+texto = """Python es un lenguaje claro; Python es potente.
+¿Por qué aprender Python? Porque Python se lee fácil,
+y porque los diccionarios, las tuplas y los conjuntos
+resuelven problemas reales: contar, ordenar y comparar.
+¡Contar palabras es el primer paso del análisis de texto!"""
+">import string
+
+texto = """Python es un lenguaje claro; Python es potente.
+¿Por qué aprender Python? Porque Python se lee fácil,
+y porque los diccionarios, las tuplas y los conjuntos
+resuelven problemas reales: contar, ordenar y comparar.
+¡Contar palabras es el primer paso del análisis de texto!"""
+</textarea><pre class="consola" hidden></pre></div>
+  <details class="pista"><summary><i class="fa-regular fa-lightbulb"></i> Ver pista</summary><div><p><code>linea.translate(str.maketrans("", "", signos))</code> borra todos los caracteres de <code>signos</code> de una vez. Para el ranking, aplicá DSU: armá <code>(n, palabra)</code>, ordená con <code>reverse=True</code> y tomá <code>[:5]</code>.</p></div></details>
+  <details class="solucion"><summary><i class="fa-solid fa-key"></i> Ver solución explicada</summary><div><ol class="pasos"><li>Armá los signos a borrar: <code>signos = string.punctuation + "¿¡"</code>.</li><li>Creá la tabla de traducción una sola vez: <code>tabla = str.maketrans("", "", signos)</code>.</li><li>Para cada línea de <code>texto.splitlines()</code>: <code>linea.lower().translate(tabla).split()</code>.</li><li>Contá con el patrón <code>get(p, 0) + 1</code>.</li><li><b>Decorate:</b> lista de tuplas <code>(n, p)</code> desde <code>items()</code>. <b>Sort:</b> <code>sort(reverse=True)</code>. <b>Undecorate:</b> imprimir las 5 primeras desempaquetando <code>for n, p in ranking[:5]</code>.</li><li>Con un archivo real, el bucle sería <code>for linea in open("texto.txt", encoding="utf-8")</code>: el resto queda igual.</li></ol><div class="win"><pre class="py" data-title="python — solución A1" data-run="1">import string
+
+texto = """Python es un lenguaje claro; Python es potente.
+¿Por qué aprender Python? Porque Python se lee fácil,
+y porque los diccionarios, las tuplas y los conjuntos
+resuelven problemas reales: contar, ordenar y comparar.
+¡Contar palabras es el primer paso del análisis de texto!"""
+
+signos = string.punctuation + "¿¡"            # ¿ y ¡ no vienen incluidos
+tabla = str.maketrans("", "", signos)        # tabla que BORRA esos signos
+
+conteo = {}
+for linea in texto.splitlines():             # como si leyéramos un archivo
+    limpia = linea.lower().translate(tabla)
+    for p in limpia.split():
+        conteo[p] = conteo.get(p, 0) + 1
+
+# DSU: (frecuencia, palabra) para ordenar por frecuencia
+ranking = []
+for palabra, n in conteo.items():
+    ranking.append((n, palabra))
+ranking.sort(reverse=True)
+
+print("Palabras distintas:", len(conteo))
+for n, palabra in ranking[:5]:
+    print(f"{palabra:&lt;10} {n}")</pre></div><div class="win"><pre class="py" data-title="python — con archivo" data-run="0"># Versión con archivo real (en tu Python local)
+import string
+tabla = str.maketrans("", "", string.punctuation + "¿¡")
+conteo = {}
+with open("texto.txt", encoding="utf-8") as archivo:
+    for linea in archivo:
+        for p in linea.lower().translate(tabla).split():
+            conteo[p] = conteo.get(p, 0) + 1</pre></div></div></details>
+</article></div>
+<h3 class="nivel-tit c-purple"><i class="fa-solid fa-crown"></i> Nivel Dios: análisis de un log de correos</h3>
+<div class="ej-grid dios"><article class="ej n-dios" id="d1">
+  <div class="ej-head"><span class="ej-id">D1</span><h4>Análisis de un log de correos (mbox)</h4><span class="badge b-dios"><i class="fa-solid fa-crown"></i> Nivel Dios</span></div>
+  <div class="ej-enun"><p>El texto simula un archivo <code>mbox</code>: cada correo empieza con una línea <code>From usuario fecha hora</code> (con espacio, sin dos puntos). Calculá: (1) la <b>distribución horaria</b> de los correos (cuántos por hora, ordenado por hora) y (2) el <b>usuario con más envíos</b>, construyendo una lista de tuplas <code>(cantidad, email)</code> y buscando el máximo con un bucle, sin <code>max()</code>.</p></div>
+  <div class="practica"><div class="practica-bar"><span><i class="fa-solid fa-keyboard"></i> Tu solución</span><span class="practica-btns"><button class="btn-sec js-reset">Restaurar</button><button class="btn-run js-run-ej"><i class="fa-solid fa-play"></i> Ejecutar</button></span></div>
+  <textarea class="editor" spellcheck="false" data-start="mbox = """From stephen.marquard@uct.ac.za Sat Jan  5 09:14:16 2008
+Return-Path: &lt;postmaster@collab.sakaiproject.org&gt;
+From: stephen.marquard@uct.ac.za
+Subject: [sakai] svn commit: r39772 - content/branches
+
+From louis@media.berkeley.edu Fri Jan  4 18:10:48 2008
+From: louis@media.berkeley.edu
+From zqian@umich.edu Fri Jan  4 16:10:39 2008
+From rjlowe@iupui.edu Fri Jan  4 15:46:24 2008
+From zqian@umich.edu Fri Jan  4 15:03:18 2008
+From rjlowe@iupui.edu Fri Jan  4 14:50:18 2008
+From cwen@iupui.edu Fri Jan  4 11:37:30 2008
+From cwen@iupui.edu Fri Jan  4 11:35:08 2008
+From gsilver@umich.edu Fri Jan  4 11:12:37 2008
+From gsilver@umich.edu Fri Jan  4 11:11:52 2008
+From zqian@umich.edu Fri Jan  4 11:11:03 2008
+From gsilver@umich.edu Fri Jan  4 11:10:22 2008
+From wagnermr@iupui.edu Fri Jan  4 10:38:42 2008
+From zqian@umich.edu Fri Jan  4 10:17:43 2008
+From antranig@caret.cam.ac.uk Fri Jan  4 10:04:14 2008
+From gopal.ramasammycook@gmail.com Fri Jan  4 09:05:31 2008
+From zqian@umich.edu Fri Jan  4 09:02:11 2008
+From david.horwitz@uct.ac.za Fri Jan  4 07:02:32 2008
+From david.horwitz@uct.ac.za Fri Jan  4 06:08:27 2008
+From david.horwitz@uct.ac.za Fri Jan  4 04:49:08 2008
+From david.horwitz@uct.ac.za Fri Jan  4 04:33:44 2008
+From stephen.marquard@uct.ac.za Fri Jan  4 04:07:34 2008"""
+">mbox = """From stephen.marquard@uct.ac.za Sat Jan  5 09:14:16 2008
+Return-Path: &lt;postmaster@collab.sakaiproject.org&gt;
+From: stephen.marquard@uct.ac.za
+Subject: [sakai] svn commit: r39772 - content/branches
+
+From louis@media.berkeley.edu Fri Jan  4 18:10:48 2008
+From: louis@media.berkeley.edu
+From zqian@umich.edu Fri Jan  4 16:10:39 2008
+From rjlowe@iupui.edu Fri Jan  4 15:46:24 2008
+From zqian@umich.edu Fri Jan  4 15:03:18 2008
+From rjlowe@iupui.edu Fri Jan  4 14:50:18 2008
+From cwen@iupui.edu Fri Jan  4 11:37:30 2008
+From cwen@iupui.edu Fri Jan  4 11:35:08 2008
+From gsilver@umich.edu Fri Jan  4 11:12:37 2008
+From gsilver@umich.edu Fri Jan  4 11:11:52 2008
+From zqian@umich.edu Fri Jan  4 11:11:03 2008
+From gsilver@umich.edu Fri Jan  4 11:10:22 2008
+From wagnermr@iupui.edu Fri Jan  4 10:38:42 2008
+From zqian@umich.edu Fri Jan  4 10:17:43 2008
+From antranig@caret.cam.ac.uk Fri Jan  4 10:04:14 2008
+From gopal.ramasammycook@gmail.com Fri Jan  4 09:05:31 2008
+From zqian@umich.edu Fri Jan  4 09:02:11 2008
+From david.horwitz@uct.ac.za Fri Jan  4 07:02:32 2008
+From david.horwitz@uct.ac.za Fri Jan  4 06:08:27 2008
+From david.horwitz@uct.ac.za Fri Jan  4 04:49:08 2008
+From david.horwitz@uct.ac.za Fri Jan  4 04:33:44 2008
+From stephen.marquard@uct.ac.za Fri Jan  4 04:07:34 2008"""
+</textarea><pre class="consola" hidden></pre></div>
+  <details class="pista"><summary><i class="fa-regular fa-lightbulb"></i> Ver pista</summary><div><p>Filtrá con <code>linea.startswith("From ")</code>, <b>con el espacio</b>: así descartás las líneas <code>From:</code>. Con <code>split()</code> sin argumentos, la palabra 1 es el email y la palabra 5 es la hora <code>09:14:16</code>; la hora es <code>hora.split(":")[0]</code>.</p></div></details>
+  <details class="solucion"><summary><i class="fa-solid fa-key"></i> Ver solución explicada</summary><div><ol class="pasos"><li><b>Guardianes:</b> si la línea no empieza con <code>"From "</code> → <code>continue</code>; si después del <code>split()</code> tiene menos de 6 palabras → <code>continue</code>.</li><li>Desempaquetá lo que necesitás: <code>email = palabras[1]</code>, <code>hora = palabras[5].split(":")[0]</code>.</li><li>Dos contadores: <code>por_hora[hora] = por_hora.get(hora, 0) + 1</code> y lo mismo para <code>por_usuario[email]</code>.</li><li><b>Distribución:</b> <code>sorted(por_hora.items())</code> ordena por hora porque las tuplas se comparan por su primer elemento.</li><li><b>Usuario máximo:</b> armá <code>tuplas = [(n, email) ...]</code> y recorrela con <code>for n, email in tuplas</code> guardando la mayor.</li><li>Ojo con <code>split(" ")</code>: la línea tiene dos espacios en <code>Jan  5</code> y los índices se corren. Usá <code>split()</code> sin argumentos.</li></ol><div class="win"><pre class="py" data-title="python — solución D1" data-run="1">mbox = """From stephen.marquard@uct.ac.za Sat Jan  5 09:14:16 2008
+Return-Path: &lt;postmaster@collab.sakaiproject.org&gt;
+From: stephen.marquard@uct.ac.za
+Subject: [sakai] svn commit: r39772 - content/branches
+
+From louis@media.berkeley.edu Fri Jan  4 18:10:48 2008
+From: louis@media.berkeley.edu
+From zqian@umich.edu Fri Jan  4 16:10:39 2008
+From rjlowe@iupui.edu Fri Jan  4 15:46:24 2008
+From zqian@umich.edu Fri Jan  4 15:03:18 2008
+From rjlowe@iupui.edu Fri Jan  4 14:50:18 2008
+From cwen@iupui.edu Fri Jan  4 11:37:30 2008
+From cwen@iupui.edu Fri Jan  4 11:35:08 2008
+From gsilver@umich.edu Fri Jan  4 11:12:37 2008
+From gsilver@umich.edu Fri Jan  4 11:11:52 2008
+From zqian@umich.edu Fri Jan  4 11:11:03 2008
+From gsilver@umich.edu Fri Jan  4 11:10:22 2008
+From wagnermr@iupui.edu Fri Jan  4 10:38:42 2008
+From zqian@umich.edu Fri Jan  4 10:17:43 2008
+From antranig@caret.cam.ac.uk Fri Jan  4 10:04:14 2008
+From gopal.ramasammycook@gmail.com Fri Jan  4 09:05:31 2008
+From zqian@umich.edu Fri Jan  4 09:02:11 2008
+From david.horwitz@uct.ac.za Fri Jan  4 07:02:32 2008
+From david.horwitz@uct.ac.za Fri Jan  4 06:08:27 2008
+From david.horwitz@uct.ac.za Fri Jan  4 04:49:08 2008
+From david.horwitz@uct.ac.za Fri Jan  4 04:33:44 2008
+From stephen.marquard@uct.ac.za Fri Jan  4 04:07:34 2008"""
+
+por_hora = {}
+por_usuario = {}
+
+for linea in mbox.splitlines():                  # en local: for linea in open("mbox-short.txt")
+    if not linea.startswith("From "):            # guardián 1: "From:" queda afuera
+        continue
+    palabras = linea.split()
+    if len(palabras) &lt; 6:                        # guardián 2: línea incompleta
+        continue
+    email = palabras[1]
+    hora = palabras[5].split(":")[0]             # "09:14:16" -&gt; "09"
+    por_hora[hora] = por_hora.get(hora, 0) + 1
+    por_usuario[email] = por_usuario.get(email, 0) + 1
+
+# 1) Distribución horaria, ordenada por hora
+print("Distribución horaria:")
+for hora, n in sorted(por_hora.items()):
+    print(f"  {hora} h  {'#' * n} {n}")
+
+# 2) Usuario con más envíos: lista de tuplas (cantidad, email)
+tuplas = []
+for email, n in por_usuario.items():
+    tuplas.append((n, email))
+
+mejor_n, mejor_email = None, None
+for n, email in tuplas:                          # bucle máximo manual
+    if mejor_n is None or n &gt; mejor_n:
+        mejor_n, mejor_email = n, email
+
+print(f"Correos analizados: {sum(por_usuario.values())}")
+print(f"Usuario con más envíos: {mejor_email} ({mejor_n})")</pre></div></div></details>
+</article></div>
+</section>
+<section id="cierre" class="seccion">
+<header class="sec-head">
+  <div class="sec-tit"><i class="fa-solid fa-circle-check"></i><h2>Cierre: repaso relámpago</h2><span class="sec-sub">| ¿Qué imprime? Respondé y verificá</span></div>
+  <div class="pills"><span class="pill"><i class="fa-regular fa-clock"></i> 5 min</span><span class="pill"><i class="fa-solid fa-graduation-cap"></i> Resumen</span></div>
+</header>
+<div class="row2"><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-bolt c-blue"></i> ¿Qué imprime?</h3><div class="quiz"><div class="q" data-exp="Sin coma, los paréntesis no crean una tupla: (5,) sí lo es."><div class="q-num">1</div><div class="q-body"><pre class="py q-code" data-run="0" data-bare="1">t = (5)
+print(type(t))</pre><div class="q-ops"><button class="q-op" data-ok="0">&lt;class 'tuple'&gt;</button><button class="q-op" data-ok="1">&lt;class 'int'&gt;</button><button class="q-op" data-ok="0">&lt;class 'list'&gt;</button><button class="q-op" data-ok="0">Error</button></div><p class="q-fb" aria-live="polite"></p></div></div><div class="q" data-exp="Primero se arma la tupla (2, 1) con los valores viejos y luego se desempaqueta."><div class="q-num">2</div><div class="q-body"><pre class="py q-code" data-run="0" data-bare="1">a, b = 1, 2
+a, b = b, a
+print(a, b)</pre><div class="q-ops"><button class="q-op" data-ok="0">1 2</button><button class="q-op" data-ok="1">2 1</button><button class="q-op" data-ok="0">2 2</button><button class="q-op" data-ok="0">Error</button></div><p class="q-fb" aria-live="polite"></p></div></div><div class="q" data-exp="get devuelve el valor por defecto cuando la clave no existe."><div class="q-num">3</div><div class="q-body"><pre class="py q-code" data-run="0" data-bare="1">d = {"a": 1}
+print(d.get("b", 0))</pre><div class="q-ops"><button class="q-op" data-ok="0">KeyError</button><button class="q-op" data-ok="0">None</button><button class="q-op" data-ok="1">0</button><button class="q-op" data-ok="0">1</button></div><p class="q-fb" aria-live="polite"></p></div></div><div class="q" data-exp="Las llaves vacías crean un diccionario. El conjunto vacío es set()."><div class="q-num">4</div><div class="q-body"><pre class="py q-code" data-run="0" data-bare="1">print(type({}))</pre><div class="q-ops"><button class="q-op" data-ok="0">&lt;class 'set'&gt;</button><button class="q-op" data-ok="1">&lt;class 'dict'&gt;</button><button class="q-op" data-ok="0">&lt;class 'tuple'&gt;</button><button class="q-op" data-ok="0">Error</button></div><p class="q-fb" aria-live="polite"></p></div></div><div class="q" data-exp="&amp; es la intersección: los elementos que están en los dos."><div class="q-num">5</div><div class="q-body"><pre class="py q-code" data-run="0" data-bare="1">print(sorted({1, 2, 3} &amp; {2, 3, 4}))</pre><div class="q-ops"><button class="q-op" data-ok="0">[1, 2, 3, 4]</button><button class="q-op" data-ok="1">[2, 3]</button><button class="q-op" data-ok="0">[1, 4]</button><button class="q-op" data-ok="0">[1]</button></div><p class="q-fb" aria-live="polite"></p></div></div><div class="q" data-exp="Una lista es mutable y no es hashable: no puede ser clave. Una tupla (1, 2) sí."><div class="q-num">6</div><div class="q-body"><pre class="py q-code" data-run="0" data-bare="1">d = {}
+d[[1, 2]] = "x"</pre><div class="q-ops"><button class="q-op" data-ok="0">Funciona</button><button class="q-op" data-ok="0">KeyError</button><button class="q-op" data-ok="1">TypeError</button><button class="q-op" data-ok="0">ValueError</button></div><p class="q-fb" aria-live="polite"></p></div></div></div><p class="q-score" id="q-score">Respondidas: 0 de 6</p></div></div><div class="col"><div class="card"><h3 class="card-tit"><i class="fa-solid fa-book c-blue"></i> ¿Qué aprendimos hoy?</h3><div class="tiles t2"><div class="tile t-blue"><div class="tile-tit"><i class="fa-solid fa-check"></i> Tuplas</div><p>Inmutables; singleton con coma; <code>a, b = b, a</code>; DSU para ordenar.</p></div><div class="tile t-green"><div class="tile-tit"><i class="fa-solid fa-check"></i> Diccionarios</div><p>Búsqueda O(1); claves hashables; <code>items()</code> y <code>get()</code>.</p></div><div class="tile t-orange"><div class="tile-tit"><i class="fa-solid fa-check"></i> Conjuntos</div><p>Únicos y sin orden; <code>set()</code> vacío; <code>| &amp; - ^</code>.</p></div><div class="tile t-purple"><div class="tile-tit"><i class="fa-solid fa-check"></i> Contador</div><p><code>d[k] = d.get(k, 0) + 1</code> resuelve la mitad de los problemas de datos.</p></div></div></div><div class="card"><h3 class="card-tit"><i class="fa-solid fa-clipboard-check c-blue"></i> Checklist antes de entregar código</h3><ul class="lista-ok">
+<li>¿Uso <code>.items()</code> cuando recorro clave y valor?</li>
+<li>¿Toda lectura <code>d[k]</code> está protegida con <code>in</code>, <code>get()</code> o <code>try</code>?</li>
+<li>¿Normalicé las claves (<code>strip()</code>, <code>lower()</code>)?</li>
+<li>¿Mis conjuntos vacíos son <code>set()</code> y no <code>{}</code>?</li>
+<li>¿Las tuplas de un elemento tienen coma?</li>
+<li>¿Muestro los conjuntos con <code>sorted()</code> si necesito orden?</li></ul></div><div class="card"><h3 class="card-tit"><i class="fa-solid fa-house-laptop c-blue"></i> Tarea</h3><p>Terminar <b>D1</b> con el archivo <code>mbox-short.txt</code> en tu Python local. Extra: agregá la distribución de correos por <b>dominio</b> (lo que va después de la <code>@</code>) y mostrá los tres dominios con más envíos usando DSU.</p></div><aside class="docente"><div class="docente-tit"><i class="fa-solid fa-chalkboard-user"></i> Nota para el docente</div><p>Usá el “¿Qué imprime?” como ticket de salida individual. Si fallan la 1 o la 4, abrí la próxima clase repasando singleton y <code>set()</code> vacío: son los dos errores que más se arrastran.</p></aside></div></div>
+</section>
+<footer class="pie"><span><i class="fa-solid fa-graduation-cap"></i> Programación en Python: Diccionarios, tuplas y conjuntos</span><span class="firma">Lic. Santiago Mendoza, MSc.</span></footer>
+</main>
+</div>
+<button class="lanzador" id="lanzador" type="button" aria-expanded="false" aria-controls="cajon"><i class="fa-solid fa-terminal"></i> Consola Python</button>
+<div class="cajon" id="cajon" role="dialog" aria-label="Consola Python">
+  <div class="cab"><strong><i class="fa-solid fa-terminal c-green"></i> Consola Python</strong><button class="btn-mini" id="cerrarCajon" type="button">Cerrar</button></div>
+  <div id="consolaLibre"></div>
+</div>
+<script type="text/python">
+from browser import window
+import sys
+
+class _Salida:
+    def __init__(self):
+        self.partes = []
+    def write(self, s):
+        self.partes.append(str(s))
+    def flush(self):
+        pass
+
+def _ejecutar(codigo):
+    out = _Salida()
+    viejo_out, viejo_err = sys.stdout, sys.stderr
+    sys.stdout = out
+    sys.stderr = out
+    error = ""
+    linea = 0
+    try:
+        exec(codigo, {"__name__": "__main__"})
+    except BaseException as e:
+        error = type(e).__name__ + ": " + str(e)
+        try:
+            if isinstance(e, SyntaxError) and e.lineno:
+                linea = e.lineno
+            else:
+                tb = e.__traceback__
+                while tb is not None:
+                    if tb.tb_frame.f_code.co_filename in ("<string>", "exec"):
+                        linea = tb.tb_lineno
+                    tb = tb.tb_next
+        except Exception:
+            linea = 0
+    finally:
+        sys.stdout, sys.stderr = viejo_out, viejo_err
+    return [''.join(out.partes), error, linea]
+
+window.pyRun = _ejecutar
+
+class _Limite(BaseException):
+    pass
+
+def _linea_codigo(e):
+    try:
+        tb = e.__traceback__
+        ln = 0
+        while tb is not None:
+            if tb.tb_frame.f_code.co_filename == '<codigo>':
+                ln = tb.tb_lineno
+            tb = tb.tb_next
+        return ln
+    except Exception:
+        return 0
+
+def _consola(src, entradas):
+    out = []
+    feed = [str(x) for x in entradas]
+    cont = [0]
+    def _print(*args, sep=' ', end='\n', **kw):
+        cont[0] += 1
+        if cont[0] > 3000:
+            raise _Limite("El programa imprimió demasiadas líneas. ¿Hay un bucle infinito?")
+        out.append(str(sep).join(str(a) for a in args) + str(end))
+    def _input(prompt=''):
+        out.append(str(prompt))
+        if not feed:
+            raise _Limite("El programa pidió un dato más de los disponibles. Agregá líneas en «Datos de entrada».")
+        v = feed.pop(0)
+        out.append(v + '\n')
+        return v
+    ns = {'print': _print, 'input': _input, '__name__': '__main__'}
+    tipo = ''
+    err = ''
+    linea = 0
+    try:
+        exec(compile(src, '<codigo>', 'exec'), ns)
+    except _Limite as e:
+        tipo = 'Límite'
+        err = str(e)
+    except SyntaxError as e:
+        tipo = type(e).__name__
+        err = str(getattr(e, 'msg', e))
+        linea = getattr(e, 'lineno', 0) or 0
+    except BaseException as e:
+        tipo = type(e).__name__
+        err = str(e)
+        linea = _linea_codigo(e)
+    return [''.join(out), tipo, err, linea]
+
+window.pyConsola = _consola
+</script>
+<script>
+(function(){
+const KW=/\b(def|return|if|elif|else|for|while|in|not|and|or|is|import|from|as|with|break|continue|pass|None|True|False|del|try|except|lambda|global)\b/;
+const BI=/\b(print|len|range|list|sorted|sum|max|min|type|id|enumerate|str|int|float|input|open|round|set|copy)\b/;
+const RE=/(#[^\n]*)|(f?"(?:[^"\\\n]|\\.)*"|f?'(?:[^'\\\n]|\\.)*')|(^[ \t]*[A-Za-z_]\w*(?=[ \t]*(?:[+\-*\/]?=)(?!=)))|(\.[A-Za-z_]\w*(?=\())|\b(\d+(?:\.\d+)?)\b|\b([A-Za-z_]\w*)\b/gm;
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function hl(src){
+  let out="",last=0,m;RE.lastIndex=0;
+  while((m=RE.exec(src))){
+    out+=esc(src.slice(last,m.index));last=RE.lastIndex;
+    if(m[1])out+=`<span class="tok-c">${esc(m[1])}</span>`;
+    else if(m[2])out+=`<span class="tok-s">${esc(m[2])}</span>`;
+    else if(m[3]){const ws=m[3].match(/^[ \t]*/)[0];const id=m[3].slice(ws.length);
+      out+=ws+(KW.test(id)?`<span class="tok-k">${id}</span>`:`<span class="tok-v">${id}</span>`);}
+    else if(m[4])out+=`.<span class="tok-m">${esc(m[4].slice(1))}</span>`;
+    else if(m[5])out+=`<span class="tok-n">${m[5]}</span>`;
+    else if(m[6]){const w=m[6];out+=KW.test(w)&&w.match(KW)[0]===w?`<span class="tok-k">${w}</span>`:(BI.test(w)&&w.match(BI)[0]===w?`<span class="tok-b">${w}</span>`:w);}
+    if(m[0].length===0)RE.lastIndex++;
+  }
+  return out+esc(src.slice(last));
+}
+
+/* ---- Python runtime (Brython) ---- */
+let pyListo=false;const espera=[];
+function marcarListo(){pyListo=true;const e=document.getElementById("py-estado");if(e){e.classList.add("listo");e.querySelector("span:last-child").textContent="Python listo para ejecutar";}
+  document.querySelectorAll("[data-espera]").forEach(b=>{b.disabled=false;b.removeAttribute("data-espera");});espera.splice(0).forEach(f=>f());}
+window.__pyListo=marcarListo;
+function correr(src,cb){if(pyListo&&window.pyRun){cb(window.pyRun(src));}else{espera.push(()=>cb(window.pyRun(src)));}}
+
+const AYUDAS=[
+ [/pop from empty list|pop index out of range/i,"Hiciste pop() sobre una lista vacía. Protegelo con un guardián: if lista: ..."],
+ [/unpack/i,"La cantidad de variables no coincide con la de elementos. Imprimí len() del dato; si recorrés un diccionario, usá .items()."],
+ [/unhashable/i,"Las listas, diccionarios y conjuntos no pueden ser claves de diccionario ni elementos de un conjunto. Usá una tupla."],
+ [/KeyError/i,"La clave no existe. Protegé con if k in d: o con d.get(k, defecto)."],
+ [/has no attribute .add/i,"Ese objeto es un diccionario: {} vacío crea un dict. El conjunto vacío se crea con set()."],
+ [/tuple.*(assignment|append)|(assignment|append).*tuple/i,"Las tuplas son inmutables: creá una tupla nueva o convertí a lista con list()."],
+ [/not subscriptable/i,"Los conjuntos no tienen posiciones: usá in, o sorted(conjunto) para obtener una lista."],
+ [/index out of range/i,"Accediste a una posición que no existe. Si la lista vino de split(), imprimí cuántas partes tiene antes de indexar."],
+ [/NoneType/i,"Una variable vale None. Casi siempre es por reasignar un método in-place: t = t.append(x) o t = t.sort(). Esos métodos devuelven None."],
+ [/can only concatenate list/i,"Con + solo podés unir lista + lista. Envolvé el valor entre corchetes: t + [x]."],
+ [/not in list/i,"remove() o index() no encontraron ese valor. Verificá antes con: if x in lista:"],
+ [/not supported between instances/i,"Estás comparando u ordenando tipos mezclados (por ejemplo str con int). Ordená listas de un solo tipo."],
+ [/does not support item assignment/i,"Ese tipo es inmutable (str o tuple): no se puede cambiar un elemento por índice. Las listas sí lo permiten."],
+ [/ZeroDivisionError|division by zero/i,"Dividiste por cero: seguramente len() de una lista vacía. Agregá un guardián antes de dividir."],
+ [/NameError/i,"Usaste un nombre que no existe todavía: revisá cómo lo escribiste y que esté definido antes de usarlo."],
+ [/IndentationError|SyntaxError/i,"Error de sintaxis: revisá los dos puntos (:) al final de if/for/def, los paréntesis y la sangría."]
+];
+function pintarSalida(pre,res){
+  pre.hidden=false;pre.innerHTML="";
+  let [out,err,linea]=res&&res.length?[res[0],res[1],res[2]]:["","",0];
+  if(out)pre.append(document.createTextNode(out));
+  if(err){const s=document.createElement("span");s.className="err";s.textContent=(linea?`Línea ${linea} → `:"")+err;pre.append(s);
+    const a=AYUDAS.find(([r])=>r.test(err));if(a){const h=document.createElement("span");h.className="ayuda";h.textContent="💡 "+a[1];pre.append(h);}}
+  if(!out&&!err){const s=document.createElement("span");s.className="meta";s.textContent="(el programa no imprimió nada)";pre.append(s);}
+}
+
+/* ---- code windows ---- */
+document.querySelectorAll("pre.py").forEach(pre=>{
+  const src=pre.textContent;pre.innerHTML=hl(src);
+  if(pre.dataset.bare)return;
+  const win=pre.parentElement,bar=document.createElement("div");bar.className="win-bar";
+  bar.innerHTML=`<span class="d"></span><span class="d"></span><span class="d"></span><span class="titulo"></span>`;
+  bar.querySelector(".titulo").textContent=pre.dataset.title||"python";
+  const copiar=document.createElement("button");copiar.textContent="Copiar";copiar.type="button";
+  copiar.onclick=()=>{const t=win.querySelector("textarea");const txt=t?t.value:src;
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{copiar.textContent="Copiado";setTimeout(()=>copiar.textContent="Copiar",1200)}).catch(()=>{copiar.textContent="No se pudo copiar"});};
+  bar.append(copiar);
+  if(pre.dataset.run==="1"){
+    const ed=document.createElement("button");ed.textContent="Editar";ed.type="button";
+    const run=document.createElement("button");run.className="run";run.type="button";run.innerHTML='<i class="fa-solid fa-play"></i> Ejecutar';
+    const salida=document.createElement("pre");salida.className="consola";salida.hidden=true;
+    ed.onclick=()=>{let t=win.querySelector("textarea");
+      if(t){pre.innerHTML=hl(t.value);t.replaceWith(pre);ed.textContent="Editar";}
+      else{t=document.createElement("textarea");t.spellcheck=false;t.value=pre.dataset.cur||src;t.rows=Math.min(24,src.split("\n").length+1);t.setAttribute("aria-label","Editor de código");pre.replaceWith(t);t.focus();ed.textContent="Ver resaltado";
+        t.addEventListener("input",()=>pre.dataset.cur=t.value);t.addEventListener("keydown",tabular);}
+    };
+    run.onclick=()=>{const t=win.querySelector("textarea");const code=t?t.value:(pre.dataset.cur||src);
+      run.disabled=true;run.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Ejecutando';
+      setTimeout(()=>correr(code,r=>{pintarSalida(salida,r);run.disabled=false;run.innerHTML='<i class="fa-solid fa-play"></i> Ejecutar';}),30);};
+    bar.append(ed,run);win.append(salida);
+  }
+  win.prepend(bar);
+});
+function tabular(e){if(e.key==="Tab"&&!e.shiftKey){e.preventDefault();const t=e.target,s=t.selectionStart;t.setRangeText("    ",s,t.selectionEnd,"end");}}
+
+/* ---- exercise editors ---- */
+document.querySelectorAll(".practica").forEach(p=>{
+  const ta=p.querySelector("textarea"),out=p.querySelector(".consola"),key="ej:"+p.closest(".ej").id;
+  try{const g=localStorage.getItem(key);if(g)ta.value=g;}catch(e){}
+  ta.addEventListener("keydown",tabular);
+  ta.addEventListener("input",()=>{try{localStorage.setItem(key,ta.value)}catch(e){}});
+  p.querySelector(".js-reset").onclick=()=>{ta.value=ta.dataset.start;try{localStorage.removeItem(key)}catch(e){};out.hidden=true;};
+  const run=p.querySelector(".js-run-ej");
+  run.onclick=()=>{run.disabled=true;setTimeout(()=>correr(ta.value,r=>{pintarSalida(out,r);run.disabled=false;}),30);};
+});
+
+/* ---- alias simulator ---- */
+const al=document.getElementById("alias");
+if(al){let modo="alias",a=[1,2,3],b=a,ult=null;const mem=al.querySelector(".alias-mem"),msg=al.querySelector(".alias-msg");
+  const caja=(arr,etqs,id)=>`<div class="obj"><div class="etqs">${etqs.map(e=>`<span class="etq">${e}</span>`).join("")}</div><div class="caja">${arr.map((v,i)=>`<span class="${v===99&&i===arr.length-1&&ult?"nuevo":""}">${v}</span>`).join("")}</div><small>id: ${id}</small></div>`;
+  function render(){
+    if(a===b)mem.innerHTML=caja(a,["a","b"],"140321");
+    else mem.innerHTML=caja(a,["a"],"140321")+caja(b,["b"],"140877");
+    if(!ult)msg.innerHTML=modo==="alias"?"<b>b = a</b>: hay <b>un solo objeto</b> con dos etiquetas. <code>a is b</code> → True.":"<b>b = a.copy()</b>: hay <b>dos objetos</b> distintos con el mismo contenido. <code>a is b</code> → False.";
+    else msg.innerHTML=modo==="alias"?`Después de <code>b.append(99)</code>: <code>print(a)</code> → <b>[${a.join(", ")}]</b>. ¡Cambió a, aunque nunca la tocamos!`:`Después de <code>b.append(99)</code>: <code>print(a)</code> → <b>[${a.join(", ")}]</b>. a quedó intacta.`;
+  }
+  function reset(){a=[1,2,3];b=modo==="alias"?a:a.slice();ult=null;render();}
+  al.querySelectorAll("[data-modo]").forEach(btn=>btn.onclick=()=>{modo=btn.dataset.modo;al.querySelectorAll("[data-modo]").forEach(x=>x.classList.toggle("on",x===btn));reset();});
+  al.querySelector('[data-acc="append"]').onclick=()=>{b.push(99);ult=true;render();};
+  al.querySelector('[data-acc="reset"]').onclick=reset;reset();}
+
+/* ---- slicer ---- */
+const sl=document.getElementById("slicer");
+if(sl){const L=[10,20,30,40,50,60],n=L.length;const ini=sl.querySelector("#s-ini"),fin=sl.querySelector("#s-fin"),paso=sl.querySelector("#s-paso");
+  const cel=sl.querySelector(".slicer-celdas"),res=sl.querySelector(".slicer-res");
+  const num=v=>{v=v.trim();if(v==="")return null;if(!/^-?\d+$/.test(v))return NaN;return parseInt(v,10);};
+  function idx(st,sp,sv){ // CPython slice.indices
+    const step=sv===null?1:sv;const lo=step>0?0:-1,hi=step>0?n:n-1;
+    const fix=(v,d)=>{if(v===null)return d;if(v<0){v+=n;if(v<lo)v=lo;}else if(v>hi)v=hi;return v;};
+    const s=fix(st,step>0?lo:hi),e=fix(sp,step>0?hi:lo);const out=[];
+    if(step>0)for(let i=s;i<e;i+=step)out.push(i);else for(let i=s;i>e;i+=step)out.push(i);return out;}
+  function render(){const s=num(ini.value),e=num(fin.value),p=num(paso.value);
+    let elegidos=[],error="";
+    if([s,e,p].some(Number.isNaN))error="Solo números enteros (o vacío).";else if(p===0)error="ValueError: slice step cannot be zero";else elegidos=idx(s,e,p);
+    cel.innerHTML=L.map((v,i)=>{const o=elegidos.indexOf(i);return `<div class="celda ${o>=0?"sel":""}">${o>=0?`<span class="ord">${o+1}</span>`:""}<b>${v}</b><small>${i}</small><small style="color:var(--red)">${i-n}</small></div>`}).join("");
+    const expr=`numeros[${ini.value.trim()}:${fin.value.trim()}${paso.value.trim()!==""?":"+paso.value.trim():""}]`;
+    res.innerHTML=error?`<span class="err">${error}</span>`:`${expr} → [${elegidos.map(i=>L[i]).join(", ")}]`;}
+  [ini,fin,paso].forEach(x=>x.addEventListener("input",render));
+  sl.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const [x,y,z]=b.dataset.p.split(",");ini.value=x;fin.value=y;paso.value=z;render();});
+  ini.value="1";fin.value="4";render();}
+
+/* ---- consola flotante (modelo Clase 9) ---- */
+const EXPLICA={
+  ValueError:"Si dice <i>too many / not enough values to unpack</i>, la cantidad de variables no coincide con la de elementos: imprimí <code>len()</code> del dato. ¿Recorriste un diccionario sin <code>.items()</code>? También aparece con <code>int(\"abc\")</code>.",
+  ZeroDivisionError:"Se dividió por cero. En matrices suele pasar al promediar una fila vacía: agregá un guardián.",
+  TypeError:"Se operó con tipos incompatibles. Tres casos típicos de esta clase: modificar una tupla (<code>t[0] = x</code>), usar una lista como clave o como elemento de un conjunto (<i>unhashable type</i>) o indexar un conjunto (<code>s[0]</code>).",
+  IndexError:"Se accedió a una posición que no existe. Si separaste una línea con <code>split()</code>, imprimí cuántas partes tiene antes de usar <code>partes[5]</code>.",
+  KeyError:"Se buscó una clave que no existe. Protegé el acceso con <code>if k in d</code> o <code>d.get(k, defecto)</code>, y revisá mayúsculas y espacios con <code>repr(k)</code>.",
+  NameError:"Se usó una variable o función que no está definida: revisá cómo la escribiste y que esté asignada antes.",
+  UnboundLocalError:"Se usó una variable local antes de asignarle un valor dentro de la función.",
+  AttributeError:"Ese dato no tiene el método pedido. Si dice <code>'dict' object has no attribute 'add'</code>, creaste el conjunto con <code>{}</code>: usá <code>set()</code>. Si dice <code>'tuple'</code>, las tuplas no tienen <code>append</code>.",
+  AssertionError:"La condición de un <code>assert</code> resultó falsa.",
+  SyntaxError:"El código no respeta la sintaxis de Python. Revisá paréntesis, corchetes y comillas sin cerrar, y los dos puntos (<code>:</code>) al final de <code>if</code>, <code>for</code>, <code>while</code> y <code>def</code>.",
+  IndentationError:"La sangría no es coherente. Usá 4 espacios por nivel y alineá los bloques que van juntos.",
+  RecursionError:"Una función se llamó a sí misma demasiadas veces sin llegar a un caso base.",
+  ImportError:"Esta consola corre en el navegador: sólo puede importar módulos estándar (como <code>random</code> o <code>copy</code>). Probá ese código en tu Python local.",
+  ModuleNotFoundError:"Esta consola corre en el navegador: sólo puede importar módulos estándar (como <code>random</code> o <code>copy</code>). Probá ese código en tu Python local.",
+  "Límite":"La consola cortó la ejecución para que no se cuelgue."
+};
+function correrConsola(src,ents){const r=window.pyConsola(src,ents);return {salida:r[0],tipo:r[1],error:r[2],linea:r[3]};}
+function pintarConsola(host,r,ed){
+  host.innerHTML="";const term=document.createElement("div");term.className="terminal";
+  let t=r.salida?esc(r.salida):"";
+  if(r.tipo){if(t&&!t.endsWith("\n"))t+="\n";
+    t+='<span class="rojo">'+(r.tipo==="Límite"?esc(r.error):(r.linea?"Error en la línea "+r.linea+"\n":"")+esc(r.tipo)+(r.error?": "+esc(r.error):""))+"</span>";}
+  if(!t)t='<span class="tenue">(el programa no mostró nada)</span>';
+  term.innerHTML=t;host.appendChild(term);
+  if(r.tipo){const ex=document.createElement("div");ex.className="explica";
+    ex.innerHTML="<strong>"+esc(r.tipo==="Límite"?"Ejecución detenida":r.tipo)+".</strong> "+(EXPLICA[r.tipo]||"Error de ejecución.");host.appendChild(ex);
+    if(ed&&r.linea)ed.marcar(r.linea);}
+}
+function crearEditor(host,codigo,alEjecutar){
+  host.classList.add("ed");
+  host.innerHTML='<div class="gutter" aria-hidden="true"></div><div class="area"><pre class="capa" aria-hidden="true"><code></code></pre><textarea spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Editor de código Python"></textarea></div>';
+  const ta=host.querySelector("textarea"),capa=host.querySelector(".capa"),cod=host.querySelector("code"),gut=host.querySelector(".gutter");
+  ta.value=codigo;let marcada=0;
+  function sync(){cod.innerHTML=hl(ta.value)+"\n";const n=ta.value.split("\n").length;let g="";
+    for(let i=1;i<=n;i++)g+="<span"+(i===marcada?' class="err"':"")+">"+i+"</span>";gut.innerHTML=g;
+    ta.style.height="auto";ta.style.height=(ta.scrollHeight+2)+"px";capa.scrollLeft=ta.scrollLeft;}
+  function insertar(txt){ta.focus();let ok=false;try{ok=document.execCommand("insertText",false,txt);}catch(e){}
+    if(!ok){ta.setRangeText(txt,ta.selectionStart,ta.selectionEnd,"end");marcada=0;sync();}}
+  ta.addEventListener("input",()=>{marcada=0;sync();});
+  ta.addEventListener("scroll",()=>{capa.scrollLeft=ta.scrollLeft;});
+  ta.addEventListener("keydown",ev=>{
+    if(ev.key==="Enter"&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();alEjecutar&&alEjecutar();return;}
+    const v=ta.value,s0=ta.selectionStart,e0=ta.selectionEnd,ini=v.lastIndexOf("\n",s0-1)+1;
+    if(ev.key==="Tab"){ev.preventDefault();
+      if(ev.shiftKey||s0!==e0){const bIdx=v.indexOf("\n",e0-(e0>s0&&v[e0-1]==="\n"?1:0));const b=bIdx===-1?v.length:bIdx;
+        const nuevo=v.slice(ini,b).split("\n").map(l=>ev.shiftKey?l.replace(/^ {1,4}/,""):"    "+l).join("\n");
+        ta.setSelectionRange(ini,b);insertar(nuevo);ta.setSelectionRange(ini,ini+nuevo.length);}
+      else insertar("    ");return;}
+    if(ev.key==="Enter"){ev.preventDefault();const linea=v.slice(ini,s0);let ind=(linea.match(/^ */)||[""])[0];
+      if(/:\s*(#.*)?$/.test(linea))ind+="    ";insertar("\n"+ind);return;}
+    if(ev.key==="Backspace"&&s0===e0&&s0>ini){const antes=v.slice(ini,s0);
+      if(/^ +$/.test(antes)&&antes.length%4===0){ev.preventDefault();ta.setSelectionRange(s0-4,s0);insertar("");}}
+  });
+  sync();
+  return {get:()=>ta.value,set:v=>{ta.value=v;marcada=0;sync();},marcar:n=>{marcada=n;sync();},foco:()=>ta.focus()};
+}
+function crearEntradas(host,valores,id){
+  const w=document.createElement("div");w.className="entradas";
+  w.innerHTML='<label for="ent-'+id+'">Datos de entrada para <code>input()</code>, uno por línea</label><textarea id="ent-'+id+'" spellcheck="false"></textarea>';
+  const t=w.querySelector("textarea");const fijar=vs=>{t.value=vs.join("\n");t.rows=Math.max(1,Math.min(5,vs.length||1));};fijar(valores);host.appendChild(w);
+  return {get:()=>t.value===""?[]:t.value.replace(/\n$/,"").split("\n"),set:fijar};
+}
+function crearConsola(host,codigo,entradas,id){
+  const edHost=document.createElement("div");host.appendChild(edHost);let ejecutar;
+  const ed=crearEditor(edHost,codigo,()=>ejecutar());const ent=crearEntradas(host,entradas,id);
+  const barra=document.createElement("div");barra.className="barra-acc";
+  barra.innerHTML='<button class="btn-c" type="button"><i class="fa-solid fa-play"></i> Ejecutar</button><button class="btn-c sec" type="button">Restaurar</button><span class="atajo">Ctrl + Enter ejecuta</span>';
+  host.appendChild(barra);
+  const sal=document.createElement("div");sal.className="consola-salida";sal.setAttribute("aria-live","polite");host.appendChild(sal);
+  const [bEj,bRe]=barra.querySelectorAll("button");let original={codigo,entradas};
+  ejecutar=()=>{const go=()=>pintarConsola(sal,correrConsola(ed.get(),ent.get()),ed);
+    if(pyListo&&window.pyConsola)go();else{sal.innerHTML='<div class="terminal"><span class="tenue">Preparando Python… se ejecuta al terminar.</span></div>';espera.push(go);}};
+  bEj.addEventListener("click",ejecutar);
+  bRe.addEventListener("click",()=>{ed.set(original.codigo);ent.set(original.entradas);sal.innerHTML="";});
+  return {cargar(c,e){original={codigo:c,entradas:e};ed.set(c);ent.set(e);sal.innerHTML="";},ejecutar,foco:ed.foco};
+}
+const cajon=document.getElementById("cajon"),lanzador=document.getElementById("lanzador");
+const libre=crearConsola(document.getElementById("consolaLibre"),
+ '# Escribí código Python y ejecutalo\nfrase = input("Escribí una frase: ")\nconteo = {}\nfor p in frase.lower().split():\n    conteo[p] = conteo.get(p, 0) + 1\nprint(conteo)\nprint("Palabras distintas:", len(set(frase.lower().split())))\n',["el sol y el mar y el cielo"],"libre");
+function abrirCajon(){cajon.classList.add("abierto");lanzador.style.display="none";lanzador.setAttribute("aria-expanded","true");}
+function cerrarCajon(){cajon.classList.remove("abierto");lanzador.style.display="";lanzador.setAttribute("aria-expanded","false");lanzador.focus();}
+lanzador.addEventListener("click",()=>{abrirCajon();libre.foco();});
+document.getElementById("cerrarCajon").addEventListener("click",cerrarCajon);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&cajon.classList.contains("abierto"))cerrarCajon();});
+function probarEnConsola(codigo,entradas){libre.cargar(codigo,entradas||[]);abrirCajon();libre.ejecutar();}
+document.querySelectorAll(".win").forEach(win=>{const pre=win.querySelector("pre.py");
+  if(!pre||pre.dataset.run!=="1")return;
+  const b=document.createElement("button");b.type="button";b.className="btn-mini btn-probar";b.innerHTML='<i class="fa-solid fa-terminal"></i> Probar en la consola';
+  b.addEventListener("click",()=>{const t=win.querySelector("textarea");probarEnConsola(t?t.value:(pre.dataset.cur||pre.textContent),[]);});
+  win.insertAdjacentElement("afterend",b);});
+
+/* ---- explorador de matriz ---- */
+const mx=document.getElementById("mexp");
+if(mx){const M=[[1,2,3,4],[5,6,7,8],[9,10,11,12]];let vista="celda",ci=2,cj=1;const g=mx.querySelector(".mexp-grid"),r=mx.querySelector(".mexp-res");
+  function render(){let h='<span></span>'+M[0].map((_,j)=>`<span class="hdr">col ${j}</span>`).join("");
+    M.forEach((fila,i)=>{h+=`<span class="hdr">fila ${i}</span>`+fila.map((v,j)=>{let c="";
+      if(vista==="celda"&&i===ci&&j===cj)c="sel";else if(vista==="fila"&&i===ci)c=j===cj?"sel":"hl";else if(vista==="col"&&j===cj)c=i===ci?"sel":"hl";else if(vista==="diag"&&i===j)c="hl";
+      return `<button type="button" class="${c}" data-i="${i}" data-j="${j}" aria-label="fila ${i}, columna ${j}, valor ${v}">${v}</button>`}).join("")});
+    g.innerHTML=h;
+    if(vista==="celda")r.innerHTML=`matriz[${ci}][${cj}] → <b>${M[ci][cj]}</b>`;
+    else if(vista==="fila")r.innerHTML=`matriz[${ci}] → <b>[${M[ci].join(", ")}]</b>`;
+    else if(vista==="col")r.innerHTML=`columna ${cj}: [fila[${cj}] for fila in matriz] → <b>[${M.map(f=>f[cj]).join(", ")}]</b>`;
+    else r.innerHTML=`i == j → <b>[${[0,1,2].map(i=>M[i][i]).join(", ")}]</b><br><span style="font-family:inherit;color:var(--muted)">3x4 no es cuadrada: la “diagonal” solo toca 3 celdas</span>`;}
+  g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ci=+b.dataset.i;cj=+b.dataset.j;render();});
+  mx.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{vista=b.dataset.v;mx.querySelectorAll("[data-v]").forEach(x=>x.classList.toggle("on",x===b));render();});
+  render();}
+
+/* ---- aliasing de matrices ---- */
+const ma=document.getElementById("malias");
+if(ma){let modo="mal",hecho=false;const mem=ma.querySelector(".malias-mem"),msg=ma.querySelector(".alias-msg");
+  function render(){const ids=modo==="mal"?["7001","7001","7001"]:["7001","7002","7003"];
+    let filas="";for(let i=0;i<3;i++){const cambia=hecho&&(modo==="mal"||i===0);
+      filas+=`<div class="mrow"><span class="etq">M[${i}]</span><div class="caja"><span class="${cambia?"cambio":""}">${cambia?5:0}</span><span>0</span><span>0</span></div><small>id ${ids[i]}</small></div>`;}
+    mem.innerHTML=`<div class="mrows">${filas}</div>`;
+    if(!hecho)msg.innerHTML=modo==="mal"?"Las tres filas tienen el <b>mismo id</b>: son una sola lista con tres nombres.":"Cada fila tiene <b>su propio id</b>: <code>[0] * 3</code> se evaluó tres veces.";
+    else msg.innerHTML=modo==="mal"?"<code>M[0][0] = 5</code> cambió <b>las tres filas</b>, porque son la misma.":"<code>M[0][0] = 5</code> cambió <b>solo la fila 0</b>.";}
+  ma.querySelectorAll("[data-modo]").forEach(b=>b.onclick=()=>{modo=b.dataset.modo;hecho=false;ma.querySelectorAll("[data-modo]").forEach(x=>x.classList.toggle("on",x===b));render();});
+  ma.querySelector('[data-acc="set"]').onclick=()=>{hecho=true;render();};
+  ma.querySelector('[data-acc="reset"]').onclick=()=>{hecho=false;render();};render();}
+/* ---- simulador de tabla hash ---- */
+const hs=document.getElementById("hashsim");
+if(hs){const N=8;const base={"manzana":1200,"pera":1500,"banana":900,"kiwi":2100,"uva":1800};let tabla;
+  const hsh=k=>{let h=0;for(const c of k)h=(h*31+c.codePointAt(0))%1000003;return h;};
+  const inp=hs.querySelector("#hs-clave"),box=hs.querySelector(".hs-tabla"),msg=hs.querySelector(".hs-msg");
+  function reset(){tabla=Array.from({length:N},()=>[]);Object.entries(base).forEach(([k,v])=>tabla[hsh(k)%N].push([k,v]));render(-1,"");msg.textContent="Tabla con 5 frutas. Probá buscar una que esté y otra que no.";}
+  function render(i,cls){box.innerHTML=tabla.map((c,j)=>`<div class="hs-cas ${j===i?cls:""}"><small>casillero ${j}</small>${c.map(([k,v])=>`<span>"${k}": ${v}</span>`).join("")||'<span style="color:var(--muted)">vacío</span>'}</div>`).join("");}
+  function accion(tipo){const k=inp.value.trim().toLowerCase();if(!k){msg.textContent="Escribí una clave.";return;}
+    const h=hsh(k),i=h%N,esta=tabla[i].find(p=>p[0]===k);
+    if(tipo==="agregar"){if(esta){msg.innerHTML=`"${k}" ya existe: asignar de nuevo solo <b>reemplaza</b> su valor (las claves son únicas).`;render(i,"hit");return;}
+      tabla[i].push([k,0]);render(i,"hit");msg.innerHTML=`hash("${k}") % ${N} = <b>${i}</b> → se guarda en el casillero ${i}.`;return;}
+    render(i,esta?"hit":"miss");
+    msg.innerHTML=`hash("${k}") % ${N} = <b>${i}</b> → se revisa <b>solo</b> el casillero ${i}: ${esta?`encontrada, valor ${esta[1]}.`:"no está (sin recorrer los demás)."} Una lista habría comparado hasta ${tabla.flat().length} elementos.`;}
+  hs.querySelector('[data-hs="buscar"]').onclick=()=>accion("buscar");
+  hs.querySelector('[data-hs="agregar"]').onclick=()=>accion("agregar");
+  hs.querySelector('[data-hs="reset"]').onclick=reset;
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();accion("buscar");}});reset();}
+
+/* ---- diagrama de Venn ---- */
+const vn=document.getElementById("venn");
+if(vn){const A=["Ana","Luis","Sofía","Tomás"],B=["Juli","Luis","Tomás","Valen"];
+  const OPS={"|":{a:1,b:1,i:1,e:"python | datos",r:[...new Set([...A,...B])]},"&":{a:0,b:0,i:1,e:"python & datos",r:A.filter(x=>B.includes(x))},
+    "-":{a:1,b:0,i:0,e:"python - datos",r:A.filter(x=>!B.includes(x))},"r":{a:0,b:1,i:0,e:"datos - python",r:B.filter(x=>!A.includes(x))},
+    "^":{a:1,b:1,i:0,e:"python ^ datos",r:[...A.filter(x=>!B.includes(x)),...B.filter(x=>!A.includes(x))]}};
+  const rA=vn.querySelector(".rA"),rB=vn.querySelector(".rB"),rI=vn.querySelector(".rI"),res=vn.querySelector(".venn-res");
+  function render(op){const o=OPS[op];rA.setAttribute("class","rA"+(o.a?" on":""));rB.setAttribute("class","rB"+(o.b?" on":""));
+    rI.setAttribute("class","rI"+(o.i?" on":((o.a||o.b)?" tapa":"")));
+    if(o.i&&!(o.a||o.b))rI.setAttribute("class","rI on");
+    res.innerHTML=`sorted(${o.e.replace("&","&amp;")}) → <b>[${o.r.sort((x,y)=>x.localeCompare(y)).map(x=>"'"+x+"'").join(", ")}]</b>`;}
+  vn.querySelectorAll("[data-op]").forEach(b=>b.onclick=()=>{vn.querySelectorAll("[data-op]").forEach(x=>x.classList.toggle("on",x===b));render(b.dataset.op);});
+  render("|");}
+
+/* ---- quiz ---- */
+let resp=0;const total=document.querySelectorAll(".q").length;
+document.querySelectorAll(".q").forEach(q=>{const fb=q.querySelector(".q-fb");
+  q.querySelectorAll(".q-op").forEach(b=>b.onclick=()=>{if(q.dataset.done)return;q.dataset.done=1;resp++;
+    const ok=b.dataset.ok==="1";b.classList.add(ok?"ok":"no");q.querySelector('[data-ok="1"]').classList.add("ok");
+    fb.textContent=(ok?"✔ Correcto. ":"✘ No. ")+q.dataset.exp;q.dataset.bien=ok?1:0;
+    const bien=document.querySelectorAll('.q[data-bien="1"]').length;
+    document.getElementById("q-score").textContent=`Respondidas: ${resp} de ${total} | Correctas: ${bien}`;});});
+
+/* ---- teacher mode ---- */
+const sw=document.getElementById("modo-docente");
+function aplicarModo(on){document.body.classList.toggle("alumno",!on);sw.checked=on;document.getElementById("modo-lbl").textContent=on?"Vista docente":"Vista alumno";}
+let docente=true;try{const g=localStorage.getItem("modo-docente");if(g!==null)docente=g==="1";}catch(e){}
+aplicarModo(docente);sw.onchange=()=>{aplicarModo(sw.checked);try{localStorage.setItem("modo-docente",sw.checked?"1":"0")}catch(e){}};
+
+/* ---- class timer ---- */
+const AG=[["apertura","Apertura",5],["m1","Módulo 1",25],["m2","Módulo 2",30],["pausa","Pausa",10],["m3","Módulo 3",20],["m4","Módulo 4",15],["m5","Módulo 5",40],["cierre","Cierre",5]];
+const ul=document.getElementById("agenda");let acc=0;
+ul.innerHTML=AG.map(([id,t,m])=>{const d=acc;acc+=m;const f=x=>`${Math.floor(x/60)}:${String(x%60).padStart(2,"0")}`;return `<li><a href="#${id}" data-ini="${d}" data-fin="${acc}"><span>${t}</span><span>${f(d)}–${f(acc)}</span></a></li>`}).join("");
+let seg=0,tick=null;const reloj=document.getElementById("reloj"),barra=document.getElementById("barra"),bt=document.getElementById("t-play");
+function pintar(){const m=Math.floor(seg/60),s=seg%60;reloj.innerHTML=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} <small>/ 150:00</small>`;
+  barra.style.width=Math.min(100,seg/90)+"%";const min=seg/60;
+  ul.querySelectorAll("a").forEach(a=>{const i=+a.dataset.ini,f=+a.dataset.fin;a.classList.toggle("activo",seg>0&&min>=i&&min<f);a.classList.toggle("hecho",min>=f);});}
+bt.onclick=()=>{if(tick){clearInterval(tick);tick=null;bt.innerHTML='<i class="fa-solid fa-play"></i> Seguir';}else{tick=setInterval(()=>{seg++;pintar();},1000);bt.innerHTML='<i class="fa-solid fa-pause"></i> Pausar';}};
+document.getElementById("t-reset").onclick=()=>{clearInterval(tick);tick=null;seg=0;bt.innerHTML='<i class="fa-solid fa-play"></i> Iniciar';pintar();};
+pintar();
+
+window.addEventListener("load",()=>{setTimeout(()=>{if(!window.pyRun&&window.brython){try{brython({debug:0})}catch(e){}}
+  const chk=setInterval(()=>{if(window.pyRun){clearInterval(chk);marcarListo();}},150);},50);});
+})();
+</script>
+</body>
+</html>
